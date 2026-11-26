@@ -1,0 +1,79 @@
+{
+ "name": "GES follow-up (3 weeks)",
+ "description": "Our playbook after the first call: proposal email, then a follow-up email every other day and a call twice a week. No reply in 3 weeks: switch to another contact. Any reply stops the sequence and goes to the owner to handle by hand.",
+ "switch_after_days": 21,
+ "steps": [
+  {
+   "day": 0,
+   "type": "email",
+   "subject": "Sponsorship proposal: {{fest}} x {{company}}",
+   "body": "Hi {{first_name}},\n\nThank you for taking my call today. As promised, I have attached our sponsorship proposal for {{fest}}.\n\nThe fest draws 20,000 to 25,000+ footfall, with 120K+ social reach and a million+ media impressions. Partners get stage branding, speaker slots, stalls and direct access to students.\n\nThe {{package}} package could fit {{company}} well. Would you have 20 minutes this week to discuss it?\n\nBest regards,\n{{sender}}\nCorporate & Media Relations, {{fest}}"
+  },
+  {
+   "day": 2,
+   "type": "email",
+   "subject": "Re: Sponsorship proposal: {{fest}} x {{company}}",
+   "body": "Hi {{first_name}},\n\nJust checking that the proposal reached you. Happy to walk you through it on a quick call or adjust the package to what {{company}} wants to achieve.\n\nBest,\n{{sender}}"
+  },
+  {
+   "day": 3,
+   "type": "call",
+   "subject": "Follow-up call",
+   "body": "Ask if they saw the proposal; find the decision maker and their timeline."
+  },
+  {
+   "day": 4,
+   "type": "email",
+   "subject": "{{company}} at {{fest}}: a few ideas",
+   "body": "Hi {{first_name}},\n\nA few ways partners like {{company}} have used the fest: a hands-on workshop for students, a speaker slot in a panel, or category exclusivity on the main stage.\n\nIf any of these is interesting, I can share a short plan.\n\nBest,\n{{sender}}"
+  },
+  {
+   "day": 6,
+   "type": "email",
+   "subject": "Reach and footfall from our last edition",
+   "body": "Hi {{first_name}},\n\nSharing last edition's numbers: 20,000 to 25,000+ footfall, 120K+ social reach and 20+ media partners. Happy to send the branding report from last year as well.\n\nBest,\n{{sender}}"
+  },
+  {
+   "day": 7,
+   "type": "call",
+   "subject": "Follow-up call",
+   "body": "Check interest; offer a 20-minute meeting."
+  },
+  {
+   "day": 9,
+   "type": "email",
+   "subject": "Partner slots for {{fest}}",
+   "body": "Hi {{first_name}},\n\nWe are finalising partners for {{fest}} over the next few weeks. Would it help if I held the {{package}} slot for {{company}} while you review?\n\nBest,\n{{sender}}"
+  },
+  {
+   "day": 10,
+   "type": "call",
+   "subject": "Follow-up call",
+   "body": "Ask about budget timing and who signs off."
+  },
+  {
+   "day": 12,
+   "type": "email",
+   "subject": "Would a short call help?",
+   "body": "Hi {{first_name}},\n\nI know inboxes get busy. If a 15-minute call is easier than email, just reply with a time that suits you.\n\nBest,\n{{sender}}"
+  },
+  {
+   "day": 14,
+   "type": "call",
+   "subject": "Follow-up call",
+   "body": "Last call attempt with this contact this week."
+  },
+  {
+   "day": 16,
+   "type": "email",
+   "subject": "Last note from the {{fest}} team",
+   "body": "Hi {{first_name}},\n\nI will not keep filling your inbox. If someone else at {{company}} handles partnerships or brand events, could you point me to them?\n\nThank you,\n{{sender}}"
+  },
+  {
+   "day": 18,
+   "type": "call",
+   "subject": "Final call",
+   "body": "Ask for the right person; if no answer, prepare to switch contact on day 21."
+  }
+ ]
+}
