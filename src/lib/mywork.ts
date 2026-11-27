@@ -2,8 +2,8 @@ import { q, one, num } from "./db";
 import { Dataset, todayOf, weekOf } from "./session";
 import { stageIdx, notificationsFor, istDay } from "./metrics";
 
-/** A member's own goals and coordination info. No team cash, no strategy status. */
-export async function myWork(ds: Dataset, memberId: string) {
+/** A member's personal goals against today's pace (GES funnel: call every company; 10% good leads, 5% meetings, 1% signed). */
+export async function memberGoals(ds: Dataset, memberId: string) {
   const today = todayOf(ds), week = weekOf(ds, today);
   const festWeek = weekOf(ds, new Date(ds.fest_start + "T00:00:00+05:30"));
   const weeks = Math.max(1, festWeek - 1);
@@ -20,12 +20,14 @@ export async function myWork(ds: Dataset, memberId: string) {
       count(*) filter (where stage='call_attempted') not_connected,
       count(*) filter (where furthest_idx >= $4) good_leads,
       count(*) filter (where furthest_idx >= $5) meetings,
-      count(*) filter (where stage = any($6::text[])) signed
+      count(*) filter (where stage = any($6::text[])) signed,
+      coalesce(sum(confirmed_value) filter (where stage = any($6::text[]) and support_type='cash'),0) signed_cash,
+      count(*) filter (where stage = any($6::text[]) and support_type<>'cash') signed_in_kind
     from deals where ds=$1 and owner_id=$2`, [ds.id, memberId, ci, gi, mi, signed]);
   const total = num(m?.total);
   const frac = Math.min(1, Math.max(0, week / weeks));
   // personal plan from the GES funnel: every prospect called by the fest; 10% good leads, 5% meetings, 1% signed
-  const goals = [
+  const goals = !ds.simulated ? [] : [
     { label: "Companies called", actual: num(m?.attempted), goal: total, pace: Math.round(total * frac) },
     { label: "Good leads", actual: num(m?.good_leads), goal: Math.round(total * 0.1), pace: +(total * 0.1 * frac).toFixed(1) },
     { label: "Meetings", actual: num(m?.meetings), goal: Math.round(total * 0.05), pace: +(total * 0.05 * frac).toFixed(1) },
@@ -35,6 +37,21 @@ export async function myWork(ds: Dataset, memberId: string) {
     connected: num(m?.connected), not_connected: num(m?.not_connected), total,
     to_call: total - num(m?.attempted),
   };
+  // the provided dataset has no personal targets: show actual results only
+  const results = ds.simulated ? null : [
+    { label: "Opportunities owned", value: total },
+    { label: `Reached ${ds.stages[gi]?.label || "contacted"}`, value: num(m?.good_leads) },
+    { label: `Reached ${ds.stages[mi]?.label || "proposal"}`, value: num(m?.meetings) },
+    { label: `${ds.stages[wi]?.label || "Signed"} (in-kind ${num(m?.signed_in_kind)})`, value: num(m?.signed) },
+    { label: "Confirmed cash (₹)", value: num(m?.signed_cash) },
+  ];
+  return { week, festWeek, goals, counts, wi, results };
+}
+
+/** A member's own goals and coordination info. No team cash, no strategy status. */
+export async function myWork(ds: Dataset, memberId: string) {
+  const today = todayOf(ds);
+  const { week, festWeek, goals, counts, wi, results } = await memberGoals(ds, memberId);
   const alerts = await notificationsFor(ds, memberId);
   const sectors = await q(`
     select mb.id, mb.name, mb.role, mb.sector_group,
@@ -44,7 +61,7 @@ export async function myWork(ds: Dataset, memberId: string) {
   const meetings = await q(`
     select a.occurred_at, c.name company, c.id company_id, mb.name member, cp.name strategy
     from activities a join companies c on c.id=a.company_id left join members mb on mb.id=a.owner_id left join campaigns cp on cp.id=a.campaign_id
-    where a.ds=$1 and a.type='meeting_held' and a.occurred_at <= $2::timestamptz order by a.occurred_at desc limit 12`, [ds.id, today.toISOString()]);
+    where a.ds=$1 and a.type='meeting_held' and a.occurred_at <= greatest($2::timestamptz, now()) order by a.occurred_at desc limit 12`, [ds.id, today.toISOString()]);
   void wi; void istDay;
-  return { week, fest_week: festWeek, goals, counts, alerts: alerts.items, sectors, meetings };
+  return { week, fest_week: festWeek, simulated: ds.simulated, results, goals, counts, alerts: alerts.items, sectors, meetings };
 }

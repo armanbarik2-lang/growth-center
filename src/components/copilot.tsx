@@ -4,7 +4,7 @@ import { api } from "@/lib/fmt";
 import { useApp } from "./shell";
 import { Button, cx } from "./ui";
 
-type Proposal = { type: "task" | "deal_stage" | "sequence"; title: string; reason: string; payload: Record<string, unknown>; state?: "done" | "dismissed" | "error"; note?: string };
+type Proposal = { type: "task" | "deal_stage" | "sequence" | "payment" | "task_update"; title: string; reason: string; payload: Record<string, unknown>; state?: "done" | "dismissed" | "error"; note?: string };
 type Msg = { role: "user" | "assistant"; text: string; proposals?: Proposal[]; steps?: { tool: string; args: unknown; ok: boolean }[]; model?: string };
 type Store = { msgs: Msg[]; history: unknown[] };
 
@@ -19,7 +19,7 @@ const STARTERS: Record<string, string[]> = {
   gef: [
     "Are we on track for the base and stretch targets? Show the numbers.",
     "Which strategy is underperforming and what should we change?",
-    "Where is the biggest drop in our funnel this week?",
+    "How many deals will we sign by the fest? Give a range and how it compares with the plan.",
     "How much cash will we have before the fest, and what is it based on?",
     "Which leads have gone silent for 3+ weeks? Create follow-up tasks for the top 3.",
   ],
@@ -27,7 +27,7 @@ const STARTERS: Record<string, string[]> = {
     "Compare the 6 campaigns: which ones produced confirmed partnerships, and at what rate?",
     "Did we hit the revised target of 28 confirmed partnerships?",
     "What was the cost per confirmed partnership for each campaign?",
-    "Which open opportunities are most likely to close, and what is the pipeline worth?",
+    "As of 31 March 2025, how many partnerships were confirmed, and which channel was converting best?",
     "Where did warm channels beat cold outreach, in numbers?",
   ],
 };
@@ -87,6 +87,8 @@ export function CopilotPanel({ compact, seed, onClose, page }: { compact?: boole
       try {
         if (p.type === "task") await api("/api/tasks", { method: "POST", body: JSON.stringify(p.payload) });
         else if (p.type === "sequence") await api("/api/outreach/enroll", { method: "POST", body: JSON.stringify({ deal_ids: p.payload.deal_ids }) });
+        else if (p.type === "payment") await api(`/api/payments/${encodeURIComponent(String(p.payload.payment_id))}`, { method: "PATCH", body: JSON.stringify({ status: p.payload.status }) });
+        else if (p.type === "task_update") await api(`/api/tasks/${encodeURIComponent(String(p.payload.task_id))}`, { method: "PATCH", body: JSON.stringify(p.payload.change) });
         else await api(`/api/deals/${encodeURIComponent(String(p.payload.deal_id))}`, { method: "PATCH", body: JSON.stringify({ stage: p.payload.stage }) });
         p.state = "done"; refresh();
       } catch (e) { p.state = "error"; p.note = (e as Error).message; }
@@ -134,7 +136,7 @@ export function CopilotPanel({ compact, seed, onClose, page }: { compact?: boole
               )}
               {m.proposals?.map((p, j) => (
                 <div key={j} className="mt-2 rounded-lg border border-indigo-200 bg-white p-2.5 text-slate-800 dark:border-indigo-800 dark:bg-slate-900 dark:text-slate-100">
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">{p.type === "task" ? "Proposed task" : p.type === "sequence" ? "Proposed email sequence" : "Proposed deal change"}</div>
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">{p.type === "task" ? "Proposed task" : p.type === "sequence" ? "Proposed email sequence" : p.type === "payment" ? "Proposed payment update" : p.type === "task_update" ? "Proposed task change" : "Proposed deal change"}</div>
                   <div className="text-sm font-medium">{p.title}</div>
                   {p.type === "task" && <div className="text-xs text-slate-500">Owner {String(p.payload.owner_name)} · due {String(p.payload.due_date)} · {String(p.payload.priority)} priority</div>}
                   {p.payload.details ? <div className="mt-1 text-xs">{String(p.payload.details)}</div> : null}

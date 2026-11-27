@@ -30,7 +30,8 @@ const RULE_FIELDS: Record<string, { k: string; label: string }[]> = {
 };
 
 function Detail({ c, onSaved }: { c: Camp; onSaved: () => void }) {
-  const { canEdit, members, openCopilot, tick } = useApp();
+  const { canEdit, members, openCopilot, tick, meta } = useApp();
+  const sim = !!meta.ctx?.ds.simulated;
   const [edit, setEdit] = useState(false);
   const [f, setF] = useState<Record<string, unknown>>({});
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -73,8 +74,8 @@ function Detail({ c, onSaved }: { c: Camp; onSaved: () => void }) {
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-6">
         {c.sends ? stat("Emails sent", c.sends) : stat("Companies listed", c.listed)}
         {c.sends ? stat("Replies", `${c.replies} (${pct(c.replies / c.sends)})`) : stat("Contacted", c.contacted)}
-                {stat("Good leads", c.good_leads)}
-        {stat("Meetings", c.meetings_reached)}
+                {sim ? stat("Good leads", c.good_leads) : stat("Brands responded", c.responded)}
+        {sim ? stat("Meetings", c.meetings_reached) : stat("Brands met", c.meetings)}
         {stat("Signed", `${c.signed} · ${inr(c.signed_value)}`)}
         {stat("Expected from open deals", inr(c.weighted_value))}
         {stat("Win rate (signed / contacted)", pct(c.win_rate))}
