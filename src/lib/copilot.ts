@@ -2,7 +2,7 @@ import { GoogleGenAI, Content, FunctionDeclaration, FunctionCallingConfigMode, P
 import { pool, q, one } from "./db";
 import { types as pgTypes } from "pg";
 import { Ctx } from "./session";
-import { dashboard, campaignMetrics, notificationsFor, signedKeys, istDay, festOver } from "./metrics";
+import { dashboard, campaignMetrics, notificationsFor, signedKeys, istDay, festOver, openKeys, stageIdx } from "./metrics";
 import { myWork, memberGoals } from "./mywork";
 import { thinkingFor, isModelMissing, isBusy, isTimeout, isSlowOrBusy, shortReason, usableModels, noteFailure } from "./gemini";
 
@@ -64,6 +64,8 @@ const TOOLS: FunctionDeclaration[] = [
     parameters: S( { type: "object", properties: { campaign_id: { type: "string" } }, required: ["campaign_id"] }) },
   { name: "as_of_snapshot", description: "State of the data at the END of a given day (IST), with no later events leaking in: latest stage per opportunity (counts and confirmed value, cash and in-kind apart), latest qualification per brand, outreach so far (attempts, brands contacted, meetings) and the target version in force. Use for ANY question about a past date ('as of', 'by', 'on', 'before', 'at the time').",
     parameters: S({ type: "object", properties: { date: { type: "string", description: "YYYY-MM-DD" } }, required: ["date"] }) },
+  { name: "get_stuck_deals", description: "Deals with no stage change for at least min_days (default 14) as of this dataset's today: counts by stage and the most advanced ones first, with days in stage, owner and value. Excludes companies not contacted yet ('To call'), which are scheduled work, not stuck. Use for any stuck, stalled, ageing or at-risk deal question.",
+    parameters: S({ type: "object", properties: { min_days: { type: "integer", description: "default 14" }, stage: { type: "string", description: "optional stage key to focus on" }, owner_id: { type: "string", description: "optional member id" } } }) },
   { name: "run_sql", description: "Run ONE read-only SELECT on the views described in the system prompt, for questions the other tools do not answer (counts, lists, comparisons, dates, calculations). Max 200 rows returned.",
     parameters: S( { type: "object", properties: { sql: { type: "string" }, purpose: { type: "string" } }, required: ["sql"] }) },
   { name: "propose_task", description: "Propose a task for the management tool. It is NOT created until the user clicks Confirm. Use after a recommendation the user may want to act on.",
@@ -117,7 +119,7 @@ RULES
 8. Money: in-kind support is never cash. A confirmed or signed value is a reported amount, not money received; only payments marked paid are cash collected. A partner activation link does not prove extra attendees or uplift.
 9. Dates: "today" is ${today}. For any question about a past date, call as_of_snapshot (end of that day, IST) so no later events leak in, and name the date used. In SQL, now() and current_date are rewritten to this dataset's today. Campaign start_at and end_at are planned dates; what actually happened is in activities and histories.
 10. Targets: use the target version in force on the date asked and name it (a revised plan replaces the launch plan from its effective date). Rows with the same effective date are parallel plans (base and stretch): report both.
-11. Use the app's own numbers: alerts (silent leads, overdue tasks, payments due) come from get_overview's alerts and their definitions; who is ahead or behind comes from member_progress (actual vs this week's pace), never raw counts alone; forecasts come from get_overview's forecast, reported as a range and labelled as a projection.
+11. Use the app's own numbers: alerts (silent leads, overdue tasks, payments due) come from get_overview's alerts and their definitions; stuck, stalled or ageing deals come from get_stuck_deals; who is ahead or behind comes from member_progress and member_gaps (actual vs this week's pace), never raw counts alone; if nobody is behind on the goal asked about, say so, then name the biggest real gap on another goal from member_gaps; forecasts come from get_overview's forecast, reported as a range and labelled as a projection.
 12. Diagnosing: compare against targets, pace, other strategies and the rule lines; name the bottleneck stage; give a likely driver only if the data supports it.
 13. Advice: recommend only actions that come from a strategy's agreed action or scale/change/stop rule${ctx.ds.simulated ? ", the PLAN RULES above" : ""}, or a pattern you can show in the data. No generic tips from outside the plan.
 14. Acting: offer to turn a recommendation into an action and call propose_task, propose_task_update, propose_deal_stage, propose_payment_update or propose_sequence. Nothing changes until the user clicks Confirm; never claim it is done before that.
@@ -159,6 +161,36 @@ async function runSql(ctx: Ctx, sql: string) {
   } finally {
     c.release();
   }
+}
+
+/** Deals in the sales conversation whose stage has not moved for min_days or more, most advanced first. */
+async function stuckDeals(ctx: Ctx, args: Record<string, unknown>) {
+  const minDays = Math.max(1, Math.min(180, Math.round(Number(args.min_days) || 14)));
+  const head = ctx.me.role === "head";
+  const notStarted = ctx.ds.simulated ? ["prospect"] : [];
+  let stages = openKeys(ctx.ds).filter((k) => !notStarted.includes(k));
+  if (args.stage && stages.includes(String(args.stage))) stages = [String(args.stage)];
+  const owner = head ? (args.owner_id ? String(args.owner_id) : null) : ctx.me.id;
+  const today = istDay(ctx.today);
+  const rows = await q<Record<string, unknown>>(`
+    select coalesce(c.name, d.name) company, d.stage, m.name owner, d.owner_id, d.proposed_value,
+      ($2::date - (d.stage_changed_at at time zone 'Asia/Kolkata')::date) days_in_stage
+    from deals d left join companies c on c.id=d.company_id left join members m on m.id=d.owner_id
+    where d.ds=$1 and d.stage = any($3::text[]) ${owner ? "and d.owner_id=$4" : ""}`, owner ? [ctx.ds.id, today, stages, owner] : [ctx.ds.id, today, stages]);
+  const stuck = rows.filter((r) => Number(r.days_in_stage) >= minDays);
+  const label = (k: string) => ctx.ds.stages.find((x) => x.key === k)?.label || k;
+  const byStage = stages.map((k) => ({ stage: label(k), open: rows.filter((r) => r.stage === k).length, stuck: stuck.filter((r) => r.stage === k).length }))
+    .filter((x) => x.open).sort((a, b) => stageIdx(ctx.ds, ctx.ds.stages.find((s) => s.label === b.stage)?.key || "") - stageIdx(ctx.ds, ctx.ds.stages.find((s) => s.label === a.stage)?.key || ""));
+  const top = stuck.sort((a, b) => stageIdx(ctx.ds, String(b.stage)) - stageIdx(ctx.ds, String(a.stage)) || Number(b.days_in_stage) - Number(a.days_in_stage)).slice(0, 15)
+    .map((r) => ({ company: r.company, stage: label(String(r.stage)), days_in_stage: Number(r.days_in_stage), owner: r.owner,
+      value: head || r.owner_id === ctx.me.id ? Number(r.proposed_value) : undefined }));
+  const notStartedCount = notStarted.length ? (await one<{ n: number }>(`select count(*)::int n from deals where ds=$1 and stage = any($2::text[]) ${owner ? "and owner_id=$3" : ""}`, owner ? [ctx.ds.id, notStarted, owner] : [ctx.ds.id, notStarted]))?.n : 0;
+  return {
+    definition: `Open deals already in the sales conversation with no stage change for ${minDays}+ days, as of ${today}${owner ? " (owner " + owner + ")" : ""}. Days in stage = ${today} minus the date of the last stage change (IST).`,
+    total_stuck: stuck.length, by_stage_most_advanced_first: byStage, most_advanced_stuck: top,
+    not_started: notStarted.length ? `${notStartedCount} companies are still at '${label(notStarted[0])}' (not contacted yet). They are scheduled across the plan, so they are not counted as stuck.` : undefined,
+    how_to_report: "Lead with the most advanced stuck deals (they are closest to cash), then the count by stage. Suggest the plan's action (follow up, switch contact after 3 silent weeks) and offer tasks.",
+  };
 }
 
 /** State at the end of a day (IST) using only records dated on or before it: latest version per entity. */
@@ -298,7 +330,16 @@ export async function callTool(ctx: Ctx, name: string, args: Record<string, unkn
     };
     return { ...d, campaigns: d.campaigns.map((c) => slimCampaign(c, ctx.ds.simulated)), members, weekly: d.weekly.slice(-8),
       weekly_activity: weekly_activity.slice(-8), forecast,
-      member_progress, member_progress_note: member_progress ? "To judge who is behind, compare each member's actual with their pace for this week (vs_pace), not raw counts. 'Companies called' pace = companies assigned x weeks elapsed / weeks to the fest." : undefined,
+      member_progress,
+      member_gaps: member_progress ? ["Companies called", "Good leads", "Meetings", "Deals signed"].map((label) => {
+        const rows = member_progress.map((m) => ({ member: m.member, g: m.goals.find((x) => x.label === label)! })).filter((r) => r.g);
+        const behind = rows.filter((r) => r.g.actual < r.g.pace).sort((a, b) => (b.g.pace - b.g.actual) - (a.g.pace - a.g.actual));
+        const tightest = rows.slice().sort((a, b) => (a.g.actual - a.g.pace) - (b.g.actual - b.g.pace))[0];
+        return { goal: label, members_behind: behind.length, of_members: rows.length,
+          furthest_behind: behind[0] ? `${behind[0].member}: ${behind[0].g.actual} vs pace ${behind[0].g.pace} (short by ${+(behind[0].g.pace - behind[0].g.actual).toFixed(1)})` : null,
+          closest_to_pace_if_none_behind: behind.length ? null : tightest ? `${tightest.member}: ${tightest.g.actual} vs pace ${tightest.g.pace}` : null };
+      }) : undefined,
+      member_progress_note: member_progress ? "To judge who is behind, compare each member's actual with their pace for this week (vs_pace), not raw counts. 'Companies called' pace = companies assigned x weeks elapsed / weeks to the fest." : undefined,
       alerts: { ...d.alerts,
         definitions: {
           silent_leads: "Open deals past first contact (GEF: proposal mailed, follow-up, good lead, meeting, negotiation; CampusFest: contacted, proposal sent, negotiating) whose company has had NO activity (call, email, reply, meeting) for 21+ days before today. Deals still at 'To call', 'Not connected' or 'Connected' are not counted. Use this count; do not recompute it with updated_at.",
@@ -319,6 +360,7 @@ export async function callTool(ctx: Ctx, name: string, args: Record<string, unkn
   }
   if (name === "run_sql") return runSql(ctx, String(args.sql || ""));
   if (name === "as_of_snapshot") return snapshot(ctx, String(args.date || ""));
+  if (name === "get_stuck_deals") return stuckDeals(ctx, args);
   if (name === "propose_task") {
     const owner = await one<{ id: string; name: string }>("select id, name from members where ds=$1 and id=$2", [ctx.ds.id, args.owner_id]);
     if (!owner) return { error: "Unknown owner_id. Use a member id from get_overview.members." };
