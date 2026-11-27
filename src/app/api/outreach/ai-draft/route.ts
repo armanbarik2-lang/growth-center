@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { requireCtx, isResp, json, err } from "@/lib/api";
-import { MODELS, thinkingFor, isModelMissing, isSlowOrBusy } from "@/lib/gemini";
+import { MODELS, thinkingFor, isModelMissing, isBusy, isSlowOrBusy, shortReason } from "@/lib/gemini";
 
 export const maxDuration = 30;
 const TIME_BUDGET_MS = 25_000;
@@ -20,6 +20,7 @@ Subject: ${subject}
 Body:
 ${body}`;
   const started = Date.now();
+  const tried: string[] = [];
   for (const model of MODELS) {
     const ms = TIME_BUDGET_MS - (Date.now() - started);
     if (ms < 3_000) break;
@@ -29,9 +30,13 @@ ${body}`;
       if (out.subject && out.body) return json({ subject: String(out.subject), body: String(out.body).replace(/—/g, ","), model });
     } catch (e) {
       const msg = (e as Error).message || (e as Error).name || "";
-      if (isSlowOrBusy(msg)) return err("The AI service is busy or slow right now. Please try again in a moment.", 503);
-      if (!isModelMissing(msg)) return err(`AI error: ${msg.slice(0, 200)}`, 502);
+      const why = shortReason(model, msg);
+      tried.push(why);
+      console.error("[ai-draft]", why);
+      if (isModelMissing(msg) || isBusy(msg)) continue;
+      if (isSlowOrBusy(msg)) return err(`The AI service is busy or slow right now. Please try again. (${tried.join("; ")})`, 503);
+      return err(`AI error: ${why}`, 502);
     }
   }
-  return err("AI could not draft this email", 502);
+  return err(`AI could not draft this email${tried.length ? " (" + tried.join("; ") + ")" : ""}`, 502);
 }
