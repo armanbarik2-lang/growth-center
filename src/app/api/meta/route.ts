@@ -12,6 +12,6 @@ export async function GET() {
   const ctx = await getCtx().catch(() => null);
   return json({
     setup: true, datasets, members, ai: !!process.env.GEMINI_API_KEY,
-    ctx: ctx ? { ds: ctx.ds, me: ctx.me, today: ctx.today.toISOString(), week: ctx.week } : null,
+    ctx: ctx ? { ds: ctx.ds, me: ctx.me, today: ctx.today.toISOString(), week: ctx.week, viewer: ctx.viewer || null } : null,
   });
 }

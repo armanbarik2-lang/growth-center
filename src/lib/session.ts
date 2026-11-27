@@ -9,7 +9,7 @@ export type Dataset = {
   stage_prob: Record<string, number | null>; prob_source: string;
 };
 export type Member = { id: string; ds: string; name: string; role: "head" | "member"; sector_group: string | null; title: string | null };
-export type Ctx = { ds: Dataset; me: Member; today: Date; week: number };
+export type Ctx = { ds: Dataset; me: Member; today: Date; week: number; viewer?: string };
 
 const COOKIE = "gc_session";
 
@@ -29,13 +29,14 @@ function sign(payload: string): string {
 /** A short-lived signed value (used for the one-time sign-in code). Returns null if edited or expired. */
 export function signToken(data: Record<string, unknown>, ttlSeconds: number): string {
   const payload = Buffer.from(JSON.stringify({ ...data, exp: Date.now() + ttlSeconds * 1000 })).toString("base64url");
-  return `${payload}.${sign(payload)}`;
+  // signed under its own label, so a short-lived token can never pass as a session cookie (or the reverse)
+  return `${payload}.${sign("tok:" + payload)}`;
 }
 export function readToken<T = Record<string, unknown>>(token: string | undefined): (T & { exp: number }) | null {
   if (!token) return null;
   const dot = token.lastIndexOf(".");
   if (dot <= 0) return null;
-  const payload = token.slice(0, dot), given = Buffer.from(token.slice(dot + 1)), expected = Buffer.from(sign(payload));
+  const payload = token.slice(0, dot), given = Buffer.from(token.slice(dot + 1)), expected = Buffer.from(sign("tok:" + payload));
   if (given.length !== expected.length || !timingSafeEqual(given, expected)) return null;
   try {
     const v = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
@@ -46,7 +47,7 @@ export function codeHash(code: string): string {
   return createHmac("sha256", signingKey()).update(`otp:${code}`).digest("base64url");
 }
 
-export async function readSession(): Promise<{ ds: string; memberId: string } | null> {
+export async function readSession(): Promise<{ ds: string; memberId: string; viewer?: string } | null> {
   const c = (await cookies()).get(COOKIE)?.value;
   if (!c) return null;
   const dot = c.lastIndexOf(".");
@@ -57,14 +58,14 @@ export async function readSession(): Promise<{ ds: string; memberId: string } | 
   if (given.length !== expected.length || !timingSafeEqual(given, expected)) return null;
   try {
     const s = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
-    return typeof s?.ds === "string" && typeof s?.memberId === "string" ? { ds: s.ds, memberId: s.memberId } : null;
+    return typeof s?.ds === "string" && typeof s?.memberId === "string" ? { ds: s.ds, memberId: s.memberId, ...(typeof s.viewer === "string" ? { viewer: s.viewer } : {}) } : null;
   } catch { return null; }
 }
 
-export async function writeSession(s: { ds: string; memberId: string } | null) {
+export async function writeSession(s: { ds: string; memberId: string; viewer?: string } | null) {
   const jar = await cookies();
   if (!s) { jar.delete(COOKIE); return; }
-  const payload = Buffer.from(JSON.stringify({ ds: s.ds, memberId: s.memberId })).toString("base64url");
+  const payload = Buffer.from(JSON.stringify({ ds: s.ds, memberId: s.memberId, ...(s.viewer ? { viewer: s.viewer } : {}) })).toString("base64url");
   jar.set(COOKIE, `${payload}.${sign(payload)}`, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 24 * 30 });
 }
 
@@ -94,7 +95,7 @@ export async function getCtx(): Promise<Ctx | null> {
   const me = await one<Member>("select * from members where id=$1 and ds=$2", [s.memberId, s.ds]);
   if (!me) return null;
   const today = todayOf(ds);
-  return { ds, me, today, week: weekOf(ds, today) };
+  return { ds, me, today, week: weekOf(ds, today), ...(s.viewer ? { viewer: s.viewer } : {}) };
 }
 
 export function canEdit(ctx: Ctx, ownerId: string | null | undefined) {

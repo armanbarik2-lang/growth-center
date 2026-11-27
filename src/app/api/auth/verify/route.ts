@@ -3,7 +3,7 @@ import { readToken, signToken, codeHash, writeSession } from "@/lib/session";
 import { json, err } from "@/lib/api";
 
 const OTP_COOKIE = "gc_otp";
-type Otp = { email: string; ds: string; memberId: string; h: string; tries: number };
+type Otp = { email: string; ds: string; memberId: string; guest?: boolean; h: string; tries: number };
 
 /** Step 2 of sign-in: check the code against the signed challenge; 5 wrong tries end it. */
 export async function POST(req: Request) {
@@ -16,11 +16,15 @@ export async function POST(req: Request) {
     const tries = (otp.tries || 0) + 1;
     if (tries >= 5) { jar.delete(OTP_COOKIE); return err("Too many wrong codes. Request a new one.", 401); }
     const left = Math.max(1, Math.round((otp.exp - Date.now()) / 1000));
-    jar.set(OTP_COOKIE, signToken({ email: otp.email, ds: otp.ds, memberId: otp.memberId, h: otp.h, tries }, left),
+    jar.set(OTP_COOKIE, signToken({ email: otp.email, ds: otp.ds, memberId: otp.memberId, guest: !!otp.guest, h: otp.h, tries }, left),
       { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: left });
     return err(`That code is not right. ${5 - tries} tries left.`, 401);
   }
   jar.delete(OTP_COOKIE);
+  if (otp.guest || !otp.memberId) {
+    jar.set("gc_guest", signToken({ email: otp.email }, 900), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 900 });
+    return json({ ok: true, choose: true, email: otp.email });
+  }
   await writeSession({ ds: otp.ds, memberId: otp.memberId });
   return json({ ok: true, ds: otp.ds });
 }

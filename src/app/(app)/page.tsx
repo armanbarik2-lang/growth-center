@@ -7,6 +7,7 @@ import { api, inr, pct, fdt, fdate } from "@/lib/fmt";
 import { useApp } from "@/components/shell";
 import { Card, Stat, StatusChip, Button, Tip, Badge, Empty } from "@/components/ui";
 import { NoteCard, NoteComposer, NoteRow } from "@/components/notes";
+import { AlertList, AlertItem } from "@/components/alerts";
 
 type Camp = { id: string; name: string; kind: string; owner_name: string; rank: number | null; pact_score: number | null; contacted: number;
   meetings_reached: number; meetings: number; signed: number; signed_value: number; budget: number | null; spent: number | null; sends: number; replies: number;
@@ -31,7 +32,7 @@ type W = {
   goals: { label: string; actual: number; goal: number; pace: number }[];
   simulated: boolean; results: { label: string; value: number }[] | null;
   counts: { connected: number; not_connected: number; total: number; to_call: number };
-  alerts: { kind: string; text: string; sub: string; ref: { type: string; id: string } }[];
+  alerts: AlertItem[];
   sectors: { id: string; name: string; role: string; sector_group: string | null; approached: string; meetings_14d: string }[];
   meetings: { occurred_at: string; company: string; company_id: string; member: string; strategy: string | null }[];
 };
@@ -226,12 +227,8 @@ function MyWork() {
           </div>
         </Card>
         )}
-        <Card title="Needs you" sub="Updates live">
-          {w.alerts.length === 0 ? <Empty>All clear.</Empty> : (
-            <ul className="space-y-1.5">{w.alerts.slice(0, 8).map((a, i) => (
-              <li key={i} className="text-sm"><span className={`mr-1.5 inline-block h-2 w-2 rounded-full ${a.kind === "overdue" ? "bg-rose-500" : a.kind === "silent" ? "bg-amber-500" : a.kind === "note" ? "bg-violet-500" : "bg-indigo-400"}`} />{a.text}<div className="ml-3.5 text-xs text-slate-500">{a.sub}</div></li>
-            ))}</ul>
-          )}
+        <Card title="Needs you" sub="Grouped by urgency. Click any row to open it." right={w.alerts.length ? <span className="num rounded-full bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700 dark:bg-rose-950/60 dark:text-rose-300">{w.alerts.length}</span> : null}>
+          <AlertList items={w.alerts} perGroup={4} />
         </Card>
       </div>
 

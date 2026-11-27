@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { api, fdate } from "@/lib/fmt";
 import { cx, Badge } from "./ui";
 import { demoEmail } from "@/lib/demo-email";
+import { AlertList } from "./alerts";
 import { CopilotPanel } from "./copilot";
 
 export type Stage = { key: string; label: string; kind: string; funnel_label?: string };
@@ -13,9 +14,9 @@ export type Meta = {
   setup: boolean; ai: boolean;
   datasets: { id: string; name: string; simulated: boolean; description: string }[];
   members: Member[];
-  ctx: null | { ds: { id: string; name: string; simulated: boolean; stages: Stage[]; won_stage: string; fest_start: string; fest_end: string; outreach_start: string; as_of: string | null; prob_source: string; stage_prob: Record<string, number | null> }; me: Member; today: string; week: number };
+  ctx: null | { viewer?: string | null; ds: { id: string; name: string; simulated: boolean; stages: Stage[]; won_stage: string; fest_start: string; fest_end: string; outreach_start: string; as_of: string | null; prob_source: string; stage_prob: Record<string, number | null> }; me: Member; today: string; week: number };
 };
-type Note = { kind: string; text: string; sub: string; ref: { type: string; id: string } };
+type Note = { kind: string; group?: string; title?: string; badge?: string; text: string; sub: string; ref: { type: string; id: string } };
 type AppCtx = {
   meta: Meta; me: Member; isHead: boolean; members: Member[]; heads: Member[]; stages: Stage[];
   view: string; setView: (v: string) => void;   // heads only: "" = everyone, else member id
@@ -152,8 +153,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
               <span className={cx("flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold", isHead ? "bg-indigo-600 text-white" : "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200")}>
                 {me.name.replace(/\(.*?\)/g, "").trim().split(" ").map((x) => x[0]).slice(0, 2).join("")}</span>
               <div className="min-w-0 flex-1">
+                {meta.ctx.viewer && <div className="truncate text-[11px] font-medium text-slate-700 dark:text-slate-200" title={meta.ctx.viewer}>{meta.ctx.viewer}</div>}
+                {meta.ctx.viewer && <div className="text-[10px] uppercase tracking-wider text-slate-400">viewing as</div>}
                 <div className="flex items-center gap-1.5"><span className="truncate font-medium text-slate-800 dark:text-slate-100">{me.name.replace(/\s*\(.*?\)/, "")}</span><Badge tone={isHead ? "indigo" : "slate"}>{isHead ? "Head" : "Member"}</Badge></div>
-                <div className="truncate text-[11px]">{demoEmail(me.name, meta.ctx.ds.id)}</div>
+                {!meta.ctx.viewer && <div className="truncate text-[11px]">{demoEmail(me.name, meta.ctx.ds.id)}</div>}
               </div>
             </div>
             {me.sector_group && <div className="mt-2 truncate">{me.sector_group}</div>}
@@ -165,7 +168,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="flex min-h-14 flex-wrap items-center gap-2 border-b border-slate-200 bg-white/90 px-4 py-2 backdrop-blur md:px-6 dark:border-slate-800 dark:bg-slate-900/90">
+          <header className="relative z-30 flex min-h-14 flex-wrap items-center gap-2 border-b border-slate-200 bg-white/90 px-4 py-2 backdrop-blur md:px-6 dark:border-slate-800 dark:bg-slate-900/90">
             <div className="flex min-w-0 items-center gap-2">
               <Badge tone={meta.ctx.ds.simulated ? "violet" : "green"}>{meta.ctx.ds.simulated ? "SIMULATED" : "ORIGINAL DATA"}</Badge>
               <span className="truncate text-sm font-medium">{meta.ctx.ds.name}</span>
@@ -186,17 +189,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
                 </button>
                 {bell && (
                   <div className="scroll-thin absolute right-0 z-50 mt-1 max-h-[70vh] w-96 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-700 dark:bg-slate-900">
-                    <div className="px-2 py-1 text-xs font-semibold text-slate-500">{isHead ? "Your alerts and team lines" : "Your work"}</div>
-                    {notes.length === 0 && <div className="p-3 text-sm text-slate-500">Nothing needs you right now.</div>}
-                    {notes.map((n, i) => (
-                      <button key={i} onClick={() => go(n)} className="block w-full rounded-lg px-2 py-1.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800">
-                        <div className="flex items-center gap-2 text-sm">
-                          <span className={cx("h-2 w-2 shrink-0 rounded-full", n.kind === "overdue" ? "bg-rose-500" : n.kind === "silent" ? "bg-amber-500" : n.kind === "note" ? "bg-violet-500" : "bg-indigo-400")} />
-                          <span className="truncate">{n.text}</span>
-                        </div>
-                        <div className="ml-4 truncate text-xs text-slate-500">{n.sub}</div>
-                      </button>
-                    ))}
+                    <div className="px-2 pb-1 pt-1.5 text-sm font-semibold">{isHead ? "Team alerts" : "Needs you"}</div>
+                    <div className="p-1"><AlertList items={notes} perGroup={5} onOpen={go} empty="Nothing needs you right now." /></div>
                   </div>
                 )}
               </div>
