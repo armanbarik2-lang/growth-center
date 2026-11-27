@@ -26,6 +26,26 @@ function sign(payload: string): string {
   return createHmac("sha256", signingKey()).update(payload).digest("base64url");
 }
 
+/** A short-lived signed value (used for the one-time sign-in code). Returns null if edited or expired. */
+export function signToken(data: Record<string, unknown>, ttlSeconds: number): string {
+  const payload = Buffer.from(JSON.stringify({ ...data, exp: Date.now() + ttlSeconds * 1000 })).toString("base64url");
+  return `${payload}.${sign(payload)}`;
+}
+export function readToken<T = Record<string, unknown>>(token: string | undefined): (T & { exp: number }) | null {
+  if (!token) return null;
+  const dot = token.lastIndexOf(".");
+  if (dot <= 0) return null;
+  const payload = token.slice(0, dot), given = Buffer.from(token.slice(dot + 1)), expected = Buffer.from(sign(payload));
+  if (given.length !== expected.length || !timingSafeEqual(given, expected)) return null;
+  try {
+    const v = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+    return typeof v?.exp === "number" && v.exp > Date.now() ? v : null;
+  } catch { return null; }
+}
+export function codeHash(code: string): string {
+  return createHmac("sha256", signingKey()).update(`otp:${code}`).digest("base64url");
+}
+
 export async function readSession(): Promise<{ ds: string; memberId: string } | null> {
   const c = (await cookies()).get(COOKIE)?.value;
   if (!c) return null;

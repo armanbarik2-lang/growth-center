@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { api, fdate } from "@/lib/fmt";
 import { cx, Badge } from "./ui";
+import { demoEmail } from "@/lib/demo-email";
 import { CopilotPanel } from "./copilot";
 
 export type Stage = { key: string; label: string; kind: string; funnel_label?: string };
@@ -34,12 +35,12 @@ function ResetDemo() {
     catch { setState("error"); }
   };
   if (state === "ask") return (
-    <div className="mt-2 rounded-md bg-amber-50 p-2 text-amber-800 dark:bg-amber-950 dark:text-amber-200">
+    <div className="mt-1 w-full rounded-md bg-amber-50 p-2 text-amber-800 dark:bg-amber-950 dark:text-amber-200">
       Reload both datasets and undo every change made in the app?
       <div className="mt-1 flex gap-3"><button onClick={run} className="font-semibold underline">Yes, reset</button><button onClick={() => setState("idle")} className="underline">Cancel</button></div>
     </div>);
   return (
-    <button onClick={() => setState("ask")} disabled={state === "busy"} className="mt-1 block text-slate-500 hover:underline disabled:opacity-50">
+    <button onClick={() => setState("ask")} disabled={state === "busy"} className="text-slate-500 hover:underline disabled:opacity-50">
       {state === "busy" ? "Resetting demo data…" : state === "done" ? "Demo data reset" : state === "error" ? "Reset failed, try again" : "Reset demo data"}
     </button>);
 }
@@ -129,28 +130,42 @@ export function Shell({ children }: { children: React.ReactNode }) {
     <Ctx.Provider value={{ meta, me, isHead, members, heads, stages: meta.ctx.ds.stages, view, setView, tick, refresh, canEdit, openCopilot }}>
       <div className="flex h-screen overflow-hidden">
         <aside className="hidden w-60 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 md:flex">
-          <div className="px-4 py-4">
-            <div className="text-[15px] font-semibold">Growth Center</div>
-            <div className="text-xs text-slate-500">Sponsorship command center</div>
+          <div className="flex items-center gap-2.5 px-4 py-4">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-bold text-white shadow-sm shadow-indigo-600/30">GC</span>
+            <div className="min-w-0">
+              <div className="text-[15px] font-semibold leading-tight">Growth Center</div>
+              <div className="text-[11px] text-slate-500">Sponsorship command center</div>
+            </div>
           </div>
-          <nav className="flex-1 space-y-0.5 px-2">
+          <div className="px-5 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{isHead ? "Team workspace" : "My workspace"}</div>
+          <nav className="scroll-thin flex-1 space-y-0.5 overflow-y-auto px-2.5">
             {NAV.map((n) => (
-              <Link key={n.href} href={n.href} className={cx("flex items-center gap-2 rounded-lg px-3 py-2 text-sm",
-                active(n.href) ? "bg-indigo-50 font-medium text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300" : "text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800")}>
-                <span className="w-4 text-center">{n.icon}</span>{n.label}
+              <Link key={n.href} href={n.href} className={cx("relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
+                active(n.href) ? "bg-indigo-50 font-medium text-indigo-700 dark:bg-indigo-950/70 dark:text-indigo-300" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800")}>
+                {active(n.href) && <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-indigo-600" />}
+                <span className={cx("w-4 text-center", active(n.href) ? "text-indigo-600 dark:text-indigo-300" : "text-slate-400")}>{n.icon}</span>{n.label}
               </Link>
             ))}
           </nav>
-          <div className="border-t border-slate-100 p-3 text-xs text-slate-500 dark:border-slate-800">
-            <div className="flex items-center gap-2"><span className="font-medium text-slate-700 dark:text-slate-200">{me.name}</span><Badge tone={isHead ? "indigo" : "slate"}>{isHead ? "Head" : "Member"}</Badge></div>
-            {me.sector_group && <div className="mt-0.5">{me.sector_group}</div>}
-            <button onClick={signOut} className="mt-2 text-indigo-600 hover:underline dark:text-indigo-400">Switch user or dataset</button>
-            {isHead && <ResetDemo />}
+          <div className="m-2.5 rounded-xl border border-slate-100 bg-slate-50/70 p-3 text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-800/40">
+            <div className="flex items-center gap-2.5">
+              <span className={cx("flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold", isHead ? "bg-indigo-600 text-white" : "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200")}>
+                {me.name.replace(/\(.*?\)/g, "").trim().split(" ").map((x) => x[0]).slice(0, 2).join("")}</span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5"><span className="truncate font-medium text-slate-800 dark:text-slate-100">{me.name.replace(/\s*\(.*?\)/, "")}</span><Badge tone={isHead ? "indigo" : "slate"}>{isHead ? "Head" : "Member"}</Badge></div>
+                <div className="truncate text-[11px]">{demoEmail(me.name, meta.ctx.ds.id)}</div>
+              </div>
+            </div>
+            {me.sector_group && <div className="mt-2 truncate">{me.sector_group}</div>}
+            <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-slate-200/70 pt-2 dark:border-slate-700">
+              <button onClick={signOut} className="font-medium text-indigo-600 hover:underline dark:text-indigo-400">Sign out</button>
+              {isHead && <ResetDemo />}
+            </div>
           </div>
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="flex flex-wrap items-center gap-2 border-b border-slate-200 bg-white px-4 py-2 dark:border-slate-800 dark:bg-slate-900">
+          <header className="flex min-h-14 flex-wrap items-center gap-2 border-b border-slate-200 bg-white/90 px-4 py-2 backdrop-blur md:px-6 dark:border-slate-800 dark:bg-slate-900/90">
             <div className="flex min-w-0 items-center gap-2">
               <Badge tone={meta.ctx.ds.simulated ? "violet" : "green"}>{meta.ctx.ds.simulated ? "SIMULATED" : "ORIGINAL DATA"}</Badge>
               <span className="truncate text-sm font-medium">{meta.ctx.ds.name}</span>
@@ -185,17 +200,17 @@ export function Shell({ children }: { children: React.ReactNode }) {
                   </div>
                 )}
               </div>
-              <button onClick={toggleDark} className="rounded-lg px-2 py-1 text-sm hover:bg-slate-100 dark:hover:bg-slate-800" title="Light / dark mode">{dark ? "☀" : "☾"}</button>
-              <button onClick={() => { setSeed(undefined); setPanel(!panel); }} className={cx("rounded-lg px-3 py-1 text-sm font-medium", panel ? "bg-indigo-600 text-white" : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-950 dark:text-indigo-300")}>✦ Ask AI</button>
+              <button onClick={toggleDark} className="rounded-lg px-2 py-1 text-sm text-slate-500 transition hover:bg-slate-100 dark:hover:bg-slate-800" title="Light / dark mode">{dark ? "☀" : "☾"}</button>
+              <button onClick={() => { setSeed(undefined); setPanel(!panel); }} className={cx("rounded-lg px-3.5 py-1.5 text-sm font-medium transition", panel ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/20" : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-950 dark:text-indigo-300")}>✦ Ask AI</button>
             </div>
             <nav className="flex w-full gap-1 overflow-x-auto md:hidden">
               {NAV.map((n) => <Link key={n.href} href={n.href} className="whitespace-nowrap rounded-md px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800">{n.label}</Link>)}
             </nav>
           </header>
           <div className="flex min-h-0 flex-1">
-            <main className="scroll-thin min-w-0 flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
+            <main className="scroll-thin min-w-0 flex-1 overflow-y-auto p-4 md:p-6 lg:px-8"><div key={path} className="gc-page mx-auto w-full max-w-[1440px]">{children}</div></main>
             {panel && path !== "/copilot" && (
-              <aside className="flex w-full max-w-md shrink-0 flex-col border-l border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+              <aside className="gc-fade flex w-full max-w-md shrink-0 flex-col border-l border-slate-200 bg-white shadow-[-8px_0_24px_-16px_rgba(15,23,42,0.15)] dark:border-slate-800 dark:bg-slate-900">
                 <CopilotPanel compact seed={seed} onClose={() => setPanel(false)} page={NAV.find((n) => active(n.href))?.label} />
               </aside>
             )}

@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -6,10 +7,32 @@
 .dark { color-scheme: dark; }
 
 body {
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv11", "ss01";
 }
 
+h1 { letter-spacing: -0.015em; }
 .num { font-variant-numeric: tabular-nums; }
+::selection { background: rgb(99 102 241 / 0.18); }
+
+/* calm, consistent focus rings for keyboard users */
+:where(button, a, input, select, textarea, summary):focus-visible { outline: 2px solid rgb(99 102 241 / 0.55); outline-offset: 2px; border-radius: 8px; }
+
+/* tables: quiet uppercase headers and comfortable rows everywhere */
+main table thead th { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: rgb(100 116 139); white-space: nowrap; }
+main table tbody tr { transition: background-color 120ms ease; }
+main table td { vertical-align: middle; }
+
+/* gentle page entrance and smooth interactions */
+@keyframes gc-fade-up { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.gc-page { animation: gc-fade-up 220ms ease-out both; }
+@keyframes gc-fade { from { opacity: 0; } to { opacity: 1; } }
+.gc-fade { animation: gc-fade 160ms ease-out both; }
+@media (prefers-reduced-motion: reduce) { .gc-page, .gc-fade { animation: none; } }
+
+.scroll-thin { scrollbar-width: thin; scrollbar-color: rgb(148 163 184 / 0.45) transparent; }
 .scroll-thin::-webkit-scrollbar { width: 8px; height: 8px; }
 .scroll-thin::-webkit-scrollbar-thumb { background: rgb(148 163 184 / 0.4); border-radius: 8px; }

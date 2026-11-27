@@ -5,29 +5,29 @@ export function cx(...c: (string | false | null | undefined)[]) { return c.filte
 
 export function Card({ title, sub, right, children, className, pad = true }: { title?: React.ReactNode; sub?: React.ReactNode; right?: React.ReactNode; children?: React.ReactNode; className?: string; pad?: boolean }) {
   return (
-    <section className={cx("rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900", className)}>
+    <section className={cx("rounded-2xl border border-slate-200/80 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-slate-800 dark:bg-slate-900", className)}>
       {(title || right) && (
-        <header className="flex items-start justify-between gap-3 border-b border-slate-100 px-4 py-3 dark:border-slate-800">
-          <div>
-            <h2 className="text-sm font-semibold">{title}</h2>
-            {sub && <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{sub}</p>}
+        <header className="flex items-start justify-between gap-3 border-b border-slate-100 px-5 py-3.5 dark:border-slate-800">
+          <div className="min-w-0">
+            <h2 className="text-[13px] font-semibold text-slate-800 dark:text-slate-100">{title}</h2>
+            {sub && <p className="mt-0.5 text-xs leading-relaxed text-slate-500 dark:text-slate-400">{sub}</p>}
           </div>
-          {right}
+          {right && <div className="shrink-0">{right}</div>}
         </header>
       )}
-      <div className={pad ? "p-4" : ""}>{children}</div>
+      <div className={pad ? "p-5" : ""}>{children}</div>
     </section>
   );
 }
 
 export function Stat({ label, value, sub, tone }: { label: string; value: React.ReactNode; sub?: React.ReactNode; tone?: "good" | "warn" | "bad" | "muted" }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-      <div className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</div>
-      <div className={cx("num mt-1 text-2xl font-semibold tracking-tight",
+    <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-slate-800 dark:bg-slate-900">
+      <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{label}</div>
+      <div className={cx("num mt-1.5 text-[26px] font-semibold leading-tight tracking-tight",
         tone === "good" && "text-emerald-600 dark:text-emerald-400", tone === "warn" && "text-amber-600 dark:text-amber-400",
         tone === "bad" && "text-rose-600 dark:text-rose-400", tone === "muted" && "text-slate-400")}>{value}</div>
-      {sub && <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">{sub}</div>}
+      {sub && <div className="mt-1.5 text-xs leading-relaxed text-slate-500 dark:text-slate-400">{sub}</div>}
     </div>
   );
 }
@@ -62,10 +62,10 @@ export function Button({ children, onClick, kind = "default", size = "md", disab
   children: React.ReactNode; onClick?: () => void; kind?: "default" | "primary" | "ghost" | "danger"; size?: "sm" | "md"; disabled?: boolean; type?: "button" | "submit"; title?: string; className?: string }) {
   return (
     <button type={type} title={title} disabled={disabled} onClick={onClick}
-      className={cx("inline-flex items-center justify-center gap-1.5 rounded-lg font-medium transition disabled:cursor-not-allowed disabled:opacity-50",
-        size === "sm" ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm",
-        kind === "primary" && "bg-indigo-600 text-white hover:bg-indigo-700",
-        kind === "default" && "border border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800",
+      className={cx("inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg font-medium transition duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50",
+        size === "sm" ? "px-2.5 py-1 text-xs" : "px-3.5 py-2 text-sm",
+        kind === "primary" && "bg-indigo-600 text-white shadow-sm shadow-indigo-600/20 hover:bg-indigo-700",
+        kind === "default" && "border border-slate-200 bg-white text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800",
         kind === "ghost" && "hover:bg-slate-100 dark:hover:bg-slate-800",
         kind === "danger" && "border border-rose-200 text-rose-700 hover:bg-rose-50 dark:border-rose-900 dark:text-rose-300 dark:hover:bg-rose-950", className)}>
       {children}
@@ -73,7 +73,7 @@ export function Button({ children, onClick, kind = "default", size = "md", disab
   );
 }
 
-export const inputCls = "w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-900 dark:focus:ring-indigo-900";
+export const inputCls = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-900 dark:focus:ring-indigo-900";
 
 export function Field({ label, children, hint }: { label: string; children: React.ReactNode; hint?: string }) {
   return (
@@ -88,13 +88,13 @@ export function Field({ label, children, hint }: { label: string; children: Reac
 export function Modal({ open, onClose, title, children, wide }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode; wide?: boolean }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/40 p-4 pt-16" onClick={onClose}>
-      <div className={cx("w-full rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900", wide ? "max-w-3xl" : "max-w-lg")} onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 dark:border-slate-800">
+    <div className="gc-fade fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/40 p-4 pt-16 backdrop-blur-[2px]" onClick={onClose}>
+      <div className={cx("gc-page w-full rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900", wide ? "max-w-3xl" : "max-w-lg")} onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3.5 dark:border-slate-800">
           <h3 className="text-sm font-semibold">{title}</h3>
           <button onClick={onClose} className="rounded p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Close">✕</button>
         </div>
-        <div className="p-4">{children}</div>
+        <div className="p-5">{children}</div>
       </div>
     </div>
   );
@@ -103,20 +103,20 @@ export function Modal({ open, onClose, title, children, wide }: { open: boolean;
 export function Drawer({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: React.ReactNode; children: React.ReactNode }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-40 flex justify-end bg-slate-900/30" onClick={onClose}>
+    <div className="gc-fade fixed inset-0 z-40 flex justify-end bg-slate-900/30 backdrop-blur-[2px]" onClick={onClose}>
       <div className="scroll-thin h-full w-full max-w-xl overflow-y-auto border-l border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900" onClick={(e) => e.stopPropagation()}>
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white/95 px-5 py-3.5 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
           <div className="text-sm font-semibold">{title}</div>
           <button onClick={onClose} className="rounded p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Close">✕</button>
         </div>
-        <div className="p-4">{children}</div>
+        <div className="p-5">{children}</div>
       </div>
     </div>
   );
 }
 
 export function Empty({ children }: { children: React.ReactNode }) {
-  return <div className="rounded-lg border border-dashed border-slate-200 p-6 text-center text-sm text-slate-500 dark:border-slate-700">{children}</div>;
+  return <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/60 p-6 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900/40">{children}</div>;
 }
 
 export function Tip({ children }: { children: React.ReactNode }) {
