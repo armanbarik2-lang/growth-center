@@ -1,8 +1,9 @@
 import { GoogleGenAI } from "@google/genai";
 import { requireCtx, isResp, json, err } from "@/lib/api";
+import { MODELS, thinkingFor, isModelMissing, isSlowOrBusy } from "@/lib/gemini";
 
 export const maxDuration = 30;
-const MODELS = [process.env.GEMINI_MODEL, "gemini-3.5-flash", "gemini-2.5-flash", "gemini-3.1-flash-lite"].filter(Boolean) as string[];
+const TIME_BUDGET_MS = 25_000;
 
 /** Polishes one sequence email with Gemini. Nothing is saved until the user saves it. */
 export async function POST(req: Request) {
@@ -18,13 +19,18 @@ Return only JSON: {"subject": "...", "body": "..."}
 Subject: ${subject}
 Body:
 ${body}`;
+  const started = Date.now();
   for (const model of MODELS) {
+    const ms = TIME_BUDGET_MS - (Date.now() - started);
+    if (ms < 3_000) break;
     try {
-      const r = await ai.models.generateContent({ model, contents: prompt, config: { responseMimeType: "application/json", temperature: 0.4 } });
+      const r = await ai.models.generateContent({ model, contents: prompt, config: { responseMimeType: "application/json", temperature: 0.4, thinkingConfig: thinkingFor(model), abortSignal: AbortSignal.timeout(ms) } });
       const out = JSON.parse(r.text || "{}");
       if (out.subject && out.body) return json({ subject: String(out.subject), body: String(out.body).replace(/—/g, ","), model });
     } catch (e) {
-      if (!/not found|404|not supported|unknown model/i.test((e as Error).message)) return err(`AI error: ${(e as Error).message.slice(0, 200)}`, 502);
+      const msg = (e as Error).message || (e as Error).name || "";
+      if (isSlowOrBusy(msg)) return err("The AI service is busy or slow right now. Please try again in a moment.", 503);
+      if (!isModelMissing(msg)) return err(`AI error: ${msg.slice(0, 200)}`, 502);
     }
   }
   return err("AI could not draft this email", 502);
