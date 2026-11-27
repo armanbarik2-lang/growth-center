@@ -14,9 +14,10 @@ export async function POST(req: Request) {
   const { subject, body, instruction, company } = await req.json();
   const ai = new GoogleGenAI({ apiKey: key });
   const fest = String(ctx.ds.name || "").replace(/\s*\(.*\)\s*$/, "").trim() || "our fest";
-  const co = company ? await one<{ industry: string | null; sector_group: string | null }>(
-    "select industry, sector_group from companies where ds=$1 and name=$2 limit 1", [ctx.ds.id, company]) : null;
-  const known = co ? [co.industry && `industry: ${co.industry}`, co.sector_group && `sector group: ${co.sector_group}`].filter(Boolean).join("; ") : "";
+  // Only the company's own industry. The sector group is our internal team bucket, not something to say to the company.
+  const co = company ? await one<{ industry: string | null }>(
+    "select industry from companies where ds=$1 and name=$2 limit 1", [ctx.ds.id, company]) : null;
+  const known = co?.industry ? `industry: ${co.industry}` : "";
   const prompt = `Rewrite this sponsorship follow-up email for a college entrepreneurship fest. Keep every fact and number exactly as given; do not invent offers, discounts, deadlines or numbers. Keep it short, warm and professional, Indian business English, no em dashes. Format it as a real email: greeting on its own line, a blank line between paragraphs, and the sign-off and name on their own lines at the end (use \\n line breaks in the JSON string). ${instruction ? "Extra instruction: " + instruction : ""}
 Fest name: ${fest}. If you name the fest, use exactly this name; never invent another name for it.
 Company: ${company || ""}${known ? ` (${known})` : ""}. Personalise only with these details and what the email already says. Do not guess what the company does from its name and do not describe its focus, values or products beyond these details.
