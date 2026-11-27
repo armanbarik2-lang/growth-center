@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   if (!key) return err("AI is not configured on the server (GEMINI_API_KEY)", 503);
   const { subject, body, instruction, company } = await req.json();
   const ai = new GoogleGenAI({ apiKey: key });
-  const prompt = `Rewrite this sponsorship follow-up email for a college entrepreneurship fest. Keep every fact and number exactly as given; do not invent offers, discounts, deadlines or numbers. Keep it short, warm and professional, Indian business English, no em dashes. ${instruction ? "Extra instruction: " + instruction : ""}
+  const prompt = `Rewrite this sponsorship follow-up email for a college entrepreneurship fest. Keep every fact and number exactly as given; do not invent offers, discounts, deadlines or numbers. Keep it short, warm and professional, Indian business English, no em dashes. Format it as a real email: greeting on its own line, a blank line between paragraphs, and the sign-off and name on their own lines at the end (use \\n line breaks in the JSON string). ${instruction ? "Extra instruction: " + instruction : ""}
 Company: ${company || ""}
 Return only JSON: {"subject": "...", "body": "..."}
 
@@ -27,7 +27,7 @@ ${body}`;
     try {
       const r = await ai.models.generateContent({ model, contents: prompt, config: { responseMimeType: "application/json", temperature: 0.4, thinkingConfig: thinkingFor(model), abortSignal: AbortSignal.timeout(ms) } });
       const out = JSON.parse(r.text || "{}");
-      if (out.subject && out.body) return json({ subject: String(out.subject), body: String(out.body).replace(/—/g, ","), model });
+      if (out.subject && out.body) return json({ subject: String(out.subject), body: tidyBody(String(out.body).replace(/—/g, ",")), model });
     } catch (e) {
       const msg = (e as Error).message || (e as Error).name || "";
       const why = shortReason(model, msg);
@@ -39,4 +39,13 @@ ${body}`;
     }
   }
   return err(`AI could not draft this email${tried.length ? " (" + tried.join("; ") + ")" : ""}`, 502);
+}
+
+/** If the model returns the email as one paragraph, put the greeting and sign-off back on their own lines. */
+function tidyBody(body: string): string {
+  if (body.includes("\n")) return body.trim();
+  return body
+    .replace(/^((?:Hi|Hello|Dear)\s[^,]{1,40},)\s*/i, "$1\n\n")
+    .replace(/\s*((?:Best regards|Warm regards|Kind regards|Regards|Best|Thanks|Thank you|Sincerely),)\s*(.+)$/i, "\n\n$1\n$2")
+    .trim();
 }
