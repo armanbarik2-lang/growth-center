@@ -86,7 +86,7 @@ function DealDrawer({ deal, onClose, onSaved }: { deal: Deal; onClose: () => voi
           <div className="mb-2 text-xs font-semibold text-slate-500">DEAL</div>
           <div className="grid grid-cols-2 gap-2">
             <Field label="Stage"><select className={inputCls} value={stage} onChange={(e) => setStage(e.target.value)}>{stages.map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}</select></Field>
-            <Field label="Value (₹)"><input type="number" min={0} step={1000} className={inputCls} value={val} onChange={(e) => setVal(e.target.value)} /></Field>
+            <Field label="Value (₹)"><input type="number" className={inputCls} value={val} onChange={(e) => setVal(e.target.value)} /></Field>
             {isHead && <Field label="Owner"><select className={inputCls} value={owner} onChange={(e) => setOwner(e.target.value)}>{members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}</select></Field>}
           </div>
           <Button kind="primary" size="sm" className="mt-2" onClick={saveDeal}>Save</Button>

@@ -212,6 +212,7 @@ export async function dashboard(ds: Dataset, ownerId?: string | null) {
   const k = await one<Record<string, unknown>>(`
     select
       count(*) filter (where d.stage = any($${params.length + 1}::text[])) signed_deals,
+      count(*) filter (where d.stage = any($${params.length + 1}::text[]) and d.support_type<>'cash') signed_inkind_deals,
       coalesce(sum(d.confirmed_value) filter (where d.stage = any($${params.length + 1}::text[]) and d.support_type='cash'),0) signed_cash,
       coalesce(sum(d.confirmed_value) filter (where d.stage = any($${params.length + 1}::text[]) and d.support_type<>'cash'),0) signed_inkind,
       count(*) filter (where d.stage = any($${params.length + 2}::text[])) open_deals,
@@ -311,6 +312,7 @@ export async function dashboard(ds: Dataset, ownerId?: string | null) {
     today: today.toISOString(), week, fest_week: festWeek,
     kpis: {
       signed_deals: num(k?.signed_deals), signed_cash: num(k?.signed_cash), signed_inkind: num(k?.signed_inkind),
+      signed_split: `${num(k?.signed_deals)} signed in total = ${num(k?.signed_deals) - num(k?.signed_inkind_deals)} cash deals (signed_cash) + ${num(k?.signed_inkind_deals)} in-kind deals (signed_inkind). Do not add these together again.`,
       open_deals: num(k?.open_deals), open_value: num(k?.open_value), weighted_pipeline: Math.round(weighted),
       projected_signed_cash: Math.round(num(k?.signed_cash) + weighted),
       collected: hasPayments ? num(pay?.collected) : null, due_before_fest: hasPayments ? num(pay?.due_before_fest) : null,

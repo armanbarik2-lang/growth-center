@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
-import { api, inr, pct, fdt, fdate } from "@/lib/fmt";
+import { api, inr, pct, fdt } from "@/lib/fmt";
 import { useApp } from "@/components/shell";
 import { Card, Stat, StatusChip, Button, Tip, Badge, Empty } from "@/components/ui";
 import { NoteCard, NoteComposer, NoteRow } from "@/components/notes";
@@ -15,10 +15,7 @@ type D = {
   dataset: { id: string; simulated: boolean; prob_source: string };
   week: number; fest_week: number;
   kpis: { signed_deals: number; signed_cash: number; signed_inkind: number; weighted_pipeline: number; projected_signed_cash: number;
-    collected: number | null; due_before_fest: number | null; overdue: number | null; projected_before_fest: number | null; payments_note: string; budget: number | null; spent: number | null;
-    before_fest_breakdown: { contracted: number; expected_from_pipeline_at_plan_rates: number; projected_at_observed_rate: number | null; observed_basis: string } | null;
-    fest_over: boolean; fest_over_note: string | null };
-  superseded_targets: { version: string; replaced_at: string; deals_goal: number | null; qualified_goal: number | null }[];
+    collected: number | null; due_before_fest: number | null; overdue: number | null; projected_before_fest: number | null; payments_note: string; budget: number | null; spent: number | null };
   funnel: { key: string; label: string; reached: number }[];
   steps: { from: string; to: string; rate: number | null }[];
   weekly: { week: number; signed: number; goal_pace: number | null }[];
@@ -82,9 +79,7 @@ function HeadOverview() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="Signed cash" value={inr(k.signed_cash)} sub={`${k.signed_deals} deals signed${k.signed_inkind ? ` · ${inr(k.signed_inkind)} in-kind kept separate` : ""}`} />
         <Stat label="Cash before fest (projected)" value={k.projected_before_fest === null ? "n/a" : inr(k.projected_before_fest)} tone={k.projected_before_fest === null ? "muted" : undefined}
-          sub={<span>{k.projected_before_fest === null ? "No payment records in this dataset" : k.before_fest_breakdown
-            ? `${inr(k.before_fest_breakdown.contracted)} contracted + ${inr(k.before_fest_breakdown.expected_from_pipeline_at_plan_rates)} expected [A]${base ? ` · base goal ${inr(base.goal)}` : ""}`
-            : base ? `base goal ${inr(base.goal)}` : ""} <Tip>{k.payments_note}{k.before_fest_breakdown?.projected_at_observed_rate != null ? `. At the signing rate seen so far (${k.before_fest_breakdown.observed_basis}), it would be ${inr(k.before_fest_breakdown.projected_at_observed_rate)}; early, so biased low.` : ""}</Tip></span>} />
+          sub={<span>{k.projected_before_fest === null ? "No payment records in this dataset" : base ? `base goal ${inr(base.goal)}` : ""} <Tip>{k.payments_note}</Tip></span>} />
         <Stat label="Collected so far" value={k.collected === null ? "n/a" : inr(k.collected)} tone={k.collected === null ? "muted" : "good"}
           sub={k.overdue ? <span className="text-rose-600">{inr(k.overdue)} overdue</span> : k.collected === null ? "No payment records" : "nothing overdue"} />
         <Stat label="Budget used" value={k.budget === null ? "n/a" : `${inr(k.spent)} of ${inr(k.budget)}`} tone={k.budget === null ? "muted" : undefined} sub={k.budget === null ? "No budget in this dataset" : `${pct((k.spent || 0) / (k.budget || 1), 0)} used`} />
@@ -102,9 +97,6 @@ function HeadOverview() {
                   ))}</div>
                 </div>
               ))}
-              {d.superseded_targets.map((t) => (
-                <p key={t.version} className="text-[11px] text-slate-400">{t.version} (superseded {fdate(t.replaced_at)}): {t.deals_goal !== null ? `${t.deals_goal} deals` : ""}{t.qualified_goal !== null ? `, ${t.qualified_goal} qualified brands` : ""}</p>
-              ))}
             </div>
           )}
         </Card>
@@ -113,7 +105,7 @@ function HeadOverview() {
           <div className="space-y-1.5">
             {d.funnel.map((f, i) => (
               <div key={f.key}>
-                <div className="flex justify-between text-xs"><span>{i === d.funnel.length - 1 && f.reached !== k.signed_deals ? `Ever ${f.label.toLowerCase()} (${k.signed_deals} now)` : f.label}</span><span className="num font-medium">{f.reached}{i > 0 && d.funnel[i - 1].reached ? <span className="ml-1 text-slate-400">({pct(f.reached / d.funnel[i - 1].reached, 0)})</span> : null}</span></div>
+                <div className="flex justify-between text-xs"><span>{f.label}</span><span className="num font-medium">{f.reached}{i > 0 && d.funnel[i - 1].reached ? <span className="ml-1 text-slate-400">({pct(f.reached / d.funnel[i - 1].reached, 0)})</span> : null}</span></div>
                 <div className="h-2 rounded bg-slate-100 dark:bg-slate-800"><div className="h-2 rounded bg-indigo-500" style={{ width: `${Math.max(1, (f.reached / top) * 100)}%` }} /></div>
               </div>
             ))}
@@ -121,7 +113,7 @@ function HeadOverview() {
           {worst && <p className="mt-3 rounded-lg bg-amber-50 p-2 text-xs text-amber-800 dark:bg-amber-950 dark:text-amber-200">Biggest drop: {worst.from} → {worst.to} ({pct(worst.rate)} move on). <button className="underline" onClick={() => openCopilot(`Our biggest funnel drop is ${worst.from} to ${worst.to}. Why, and what should we change?`)}>Ask AI why</button></p>}
         </Card>
 
-        <Card title="Deals signed by week" sub={`Against straight-line pace to: ${d.targets[d.targets.length - 1]?.version || "target"}`}>
+        <Card title="Deals signed by week" sub="Against straight-line pace to the stretch target">
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={d.weekly} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
@@ -129,7 +121,7 @@ function HeadOverview() {
                 <XAxis dataKey="week" tick={{ fontSize: 11 }} tickFormatter={(w) => `W${w}`} />
                 <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
                 <Tooltip formatter={(v, n) => [String(v ?? ""), n === "signed" ? "Deals signed" : "Pace"]} labelFormatter={(w) => `Week ${w}`} />
-                <Legend wrapperStyle={{ fontSize: 11 }} formatter={(n) => (n === "signed" ? "Deals signed" : `Pace (${d.targets[d.targets.length - 1]?.items.find((x) => x.label === "Signed deals")?.goal ?? ""} deals)`)} />
+                <Legend wrapperStyle={{ fontSize: 11 }} formatter={(n) => (n === "signed" ? "Deals signed" : "Pace")} />
                 <Line type="linear" dataKey="signed" stroke="#6366f1" strokeWidth={2} dot={false} />
                 <Line type="linear" dataKey="goal_pace" stroke="#94a3b8" strokeDasharray="4 4" dot={false} />
               </LineChart>

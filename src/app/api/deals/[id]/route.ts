@@ -17,10 +17,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const si = stageIdx(ctx.ds, stage);
   if (si < 0) return err("Unknown stage");
   const kind = ctx.ds.stages[si].kind;
-  const bad = (v: unknown) => v !== undefined && v !== null && v !== "" && !(Number.isFinite(Number(v)) && Number(v) >= 0);
-  if (bad(b.proposed_value) || bad(b.confirmed_value)) return err("Value must be a number of rupees, 0 or more (no commas)");
-  const proposed = b.proposed_value !== undefined ? Number(b.proposed_value || 0) : num(d.proposed_value);
-  let confirmed = b.confirmed_value !== undefined ? Number(b.confirmed_value || 0) : num(d.confirmed_value);
+  const proposed = b.proposed_value !== undefined ? Number(b.proposed_value) : num(d.proposed_value);
+  let confirmed = b.confirmed_value !== undefined ? Number(b.confirmed_value) : num(d.confirmed_value);
   if ((kind === "won" || kind === "post") && !confirmed) confirmed = proposed;
   if (kind === "open") confirmed = b.confirmed_value !== undefined ? Number(b.confirmed_value) : 0;
   const furthest = kind === "exit" ? d.furthest_idx : Math.max(d.furthest_idx, si);
@@ -39,25 +37,18 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   }
   if (stageChanged && stage === "proposal_mailed") await autoStart(ctx, id);
   if (stageChanged && (kind === "exit" || kind === "won")) await stopForCompany(ctx, d.company_id, kind === "won" ? "Deal signed" : `Moved to ${stage}`, "stopped");
-  // simulated plan: signed or later stages keep the payments table in step with the stage
-  if (stageChanged && (kind === "won" || kind === "post") && ctx.ds.simulated) {
+  // first time signed in the simulated plan: create the standard 50/50 payment schedule and deliverables
+  if (stageChanged && kind === "won" && ctx.ds.simulated) {
     const has = await one<{ n: number }>("select count(*)::int n from payments where deal_id=$1", [id]);
     if (!has?.n) {
-      const due = new Date(ctx.today.getTime() + 7 * 86400000).toISOString().slice(0, 10);
+      const due = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
       await q("insert into payments (id, ds, deal_id, kind, amount, due_date, status, note) values ($1,$2,$3,'advance',$4,$5,'due','50% advance'),($6,$2,$3,'balance',$4,$7,'due','50% after branding report')",
-        [newId(ctx.ds.id, "PAY"), ctx.ds.id, id, confirmed / 2, due, newId(ctx.ds.id, "PAY"), "2027-02-15"]);
+        [newId(ctx.ds.id, "PAY"), ctx.ds.id, id, confirmed / 2, due, newId(ctx.ds.id, "PAY"), "2027-02-10"]);
       for (const item of ["Logo on website and posters", "Stall at the fest", "3 social media posts", "Branding report sent"]) {
         await q("insert into deliverables (id, ds, deal_id, item, status, due_date) values ($1,$2,$3,$4,'pending',$5)",
           [newId(ctx.ds.id, "DL"), ctx.ds.id, id, item, item.startsWith("Branding") ? "2027-01-31" : "2027-01-20"]);
       }
     }
-  }
-  if (stageChanged && kind === "post" && ctx.ds.simulated) {
-    const advIdx = stageIdx(ctx.ds, "advance_paid"), balIdx = stageIdx(ctx.ds, "balance_paid");
-    if (advIdx >= 0 && si >= advIdx)
-      await q("update payments set status='paid', paid_at=now() where deal_id=$1 and status='due' and kind in ('advance','full')", [id]);
-    if (balIdx >= 0 && si >= balIdx)
-      await q("update payments set status='paid', paid_at=now() where deal_id=$1 and status='due'", [id]);
   }
   return json({ ok: true });
 }

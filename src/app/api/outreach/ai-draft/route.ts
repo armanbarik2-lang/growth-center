@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { requireCtx, isResp, json, err } from "@/lib/api";
 import { one } from "@/lib/db";
-import { MODELS, thinkingFor, isModelMissing, isBusy, isSlowOrBusy, shortReason } from "@/lib/gemini";
+import { usableModels, noteFailure, thinkingFor, isModelMissing, isBusy, isSlowOrBusy, shortReason } from "@/lib/gemini";
 
 export const maxDuration = 30;
 const TIME_BUDGET_MS = 25_000;
@@ -28,7 +28,7 @@ Body:
 ${body}`;
   const started = Date.now();
   const tried: string[] = [];
-  for (const model of MODELS) {
+  for (const model of usableModels()) {
     const ms = TIME_BUDGET_MS - (Date.now() - started);
     if (ms < 3_000) break;
     try {
@@ -39,6 +39,7 @@ ${body}`;
       const msg = (e as Error).message || (e as Error).name || "";
       const why = shortReason(model, msg);
       tried.push(why);
+      noteFailure(model, msg);
       console.error("[ai-draft]", why);
       if (isModelMissing(msg) || isBusy(msg)) continue;
       if (isSlowOrBusy(msg)) return err(`The AI service is busy or slow right now. Please try again. (${tried.join("; ")})`, 503);

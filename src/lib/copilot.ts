@@ -3,7 +3,7 @@ import { pool, q, one } from "./db";
 import { Ctx } from "./session";
 import { dashboard, campaignMetrics, notificationsFor, signedKeys, istDay } from "./metrics";
 import { myWork } from "./mywork";
-import { MODELS, thinkingFor, isModelMissing, isBusy, isSlowOrBusy, shortReason } from "./gemini";
+import { thinkingFor, isModelMissing, isBusy, isSlowOrBusy, shortReason, usableModels, noteFailure } from "./gemini";
 
 /** The chat route may run 60 s on Vercel; finish well before that. */
 const TIME_BUDGET_MS = 50_000;
@@ -166,8 +166,16 @@ async function snapshot(ctx: Ctx, date: string) {
     as_of: `${date} 23:59:59 IST`, dataset_range: { outreach_start: ctx.ds.outreach_start, snapshot_end: ctx.ds.as_of, fest_start: ctx.ds.fest_start },
     note: (ctx.ds.as_of && !ctx.ds.simulated && date > istDay(new Date(ctx.ds.as_of))) ? "Date is after the end of this dataset; figures are the final state." : date < ctx.ds.outreach_start ? "Date is before outreach started." : undefined,
     opportunities_by_stage: opp.map((r) => ({ stage: r.stage, deals: r.n, proposed_value: money(r.proposed) })),
-    confirmed: { deals: won.reduce((s, r) => s + Number(r.n), 0), in_kind_deals: won.reduce((s, r) => s + Number(r.in_kind_deals), 0),
-      cash_value: money(won.reduce((s, r) => s + Number(r.confirmed_cash), 0)), in_kind_value: money(won.reduce((s, r) => s + Number(r.confirmed_in_kind), 0)) },
+    confirmed: (() => {
+      const total = won.reduce((s, r) => s + Number(r.n), 0), inKind = won.reduce((s, r) => s + Number(r.in_kind_deals), 0);
+      const cashV = won.reduce((s, r) => s + Number(r.confirmed_cash), 0), kindV = won.reduce((s, r) => s + Number(r.confirmed_in_kind), 0);
+      return {
+        total_confirmed_deals: total, of_which_cash_deals: total - inKind, of_which_in_kind_deals: inKind,
+        cash_value: money(cashV), in_kind_value: money(kindV), total_value: money(cashV + kindV),
+        read_this: `${total} confirmed in total = ${total - inKind} cash + ${inKind} in-kind. Do not add these numbers together again.` +
+          (head ? ` Value: ₹${(cashV / 1e5).toFixed(2)}L cash + ₹${(kindV / 1e5).toFixed(2)}L in-kind = ₹${((cashV + kindV) / 1e5).toFixed(2)}L.` : ""),
+      };
+    })(),
     qualification_by_status: qual, outreach_so_far: out,
     target_in_force: head ? targets : "visible to heads only",
     method: "Latest history row per opportunity and per brand dated on or before the end of the day (IST); ties broken by record id. Duplicate source rows were removed at load.",
@@ -245,7 +253,7 @@ export async function chat(ctx: Ctx, history: Content[], page?: string) {
   const started = Date.now();
   const left = () => TIME_BUDGET_MS - (Date.now() - started);
   const tried: string[] = [];
-  let model = MODELS[0];
+  let model = usableModels()[0];
   for (let i = 0; i < MAX_ROUNDS; i++) {
     // Last round (by count or by clock): no more tool calls, answer from what is already gathered.
     const finalRound = i === MAX_ROUNDS - 1 || left() < FINAL_ROUND_MS;
@@ -256,29 +264,31 @@ export async function chat(ctx: Ctx, history: Content[], page?: string) {
       else contents.push({ role: "user", parts: [nudge] });
     }
     let res;
-    for (let m = MODELS.indexOf(model); m < MODELS.length; m++) {
+    const order = usableModels(model);
+    for (let m = 0; m < order.length; m++) {
       const ms = Math.max(5_000, left() - 2_000);
       try {
         res = await ai.models.generateContent({
-          model: MODELS[m], contents,
+          model: order[m], contents,
           config: {
             systemInstruction: systemPrompt(ctx, page),
             tools: [{ functionDeclarations: TOOLS }],
             toolConfig: finalRound ? { functionCallingConfig: { mode: FunctionCallingConfigMode.NONE } } : undefined,
             temperature: 0.2,
-            thinkingConfig: thinkingFor(MODELS[m]),
+            thinkingConfig: thinkingFor(order[m]),
             abortSignal: AbortSignal.timeout(ms),
           },
         });
-        model = MODELS[m];
+        model = order[m];
         break;
       } catch (e) {
         const msg = (e as Error).message || (e as Error).name || "";
-        const why = shortReason(MODELS[m], msg);
+        const why = shortReason(order[m], msg);
         tried.push(why);
+        noteFailure(order[m], msg);
         console.error("[copilot]", why);
         // Model missing, or busy / over quota with time left: try the next model (each has its own quota).
-        if (m < MODELS.length - 1 && (isModelMissing(msg) || (isBusy(msg) && left() > 12_000))) continue;
+        if (m < order.length - 1 && (isModelMissing(msg) || (isBusy(msg) && left() > 12_000))) continue;
         if (isSlowOrBusy(msg)) {
           return { reply: (steps.length
             ? "The AI service could not finish this answer in time. The data steps it ran are listed below; please ask again or narrow the question."

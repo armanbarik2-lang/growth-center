@@ -44,7 +44,7 @@ export async function myWork(ds: Dataset, memberId: string) {
   const meetings = await q(`
     select a.occurred_at, c.name company, c.id company_id, mb.name member, cp.name strategy
     from activities a join companies c on c.id=a.company_id left join members mb on mb.id=a.owner_id left join campaigns cp on cp.id=a.campaign_id
-    where a.ds=$1 and a.type='meeting_held' and a.occurred_at <= greatest($2::timestamptz, now()) order by a.occurred_at desc limit 12`, [ds.id, today.toISOString()]);
+    where a.ds=$1 and a.type='meeting_held' and a.occurred_at <= $2::timestamptz order by a.occurred_at desc limit 12`, [ds.id, today.toISOString()]);
   void wi; void istDay;
   return { week, fest_week: festWeek, goals, counts, alerts: alerts.items, sectors, meetings };
 }
