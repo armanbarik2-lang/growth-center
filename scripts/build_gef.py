@@ -43,7 +43,7 @@ IDX = {s['key']: i for i, s in enumerate(STAGES)}
 
 dataset = {
     'id': DS, 'name': 'GEF Mumbai 2027 (simulated plan)', 'simulated': True,
-    'description': 'Simulated data for the Global Entrepreneurship Fest, Mumbai, built from our deck plan and the GES playbook. Fictional companies and people.',
+    'description': 'Simulated data for the Global Entrepreneurship Fest, Mumbai, built from our deck plan and the GES playbook. Fictional companies and people. Demo clock fixed at Fri 27 Nov 2026 (outreach week 5), matching the deck.',
     'as_of': '2026-11-27T18:00:00+05:30', 'outreach_start': day(START), 'fest_start': day(FEST), 'fest_end': '2027-01-31',
     'stages': STAGES, 'won_stage': 'signed',
     'stage_prob': {'prospect': 0.01, 'call_attempted': 0.003, 'called': 0.005, 'proposal_mailed': 0.005, 'follow_up': 0.003, 'good_lead': 0.10,
