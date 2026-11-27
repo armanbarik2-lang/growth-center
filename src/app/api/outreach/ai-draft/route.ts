@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { requireCtx, isResp, json, err } from "@/lib/api";
+import { one } from "@/lib/db";
 import { MODELS, thinkingFor, isModelMissing, isBusy, isSlowOrBusy, shortReason } from "@/lib/gemini";
 
 export const maxDuration = 30;
@@ -12,8 +13,13 @@ export async function POST(req: Request) {
   if (!key) return err("AI is not configured on the server (GEMINI_API_KEY)", 503);
   const { subject, body, instruction, company } = await req.json();
   const ai = new GoogleGenAI({ apiKey: key });
+  const fest = String(ctx.ds.name || "").replace(/\s*\(.*\)\s*$/, "").trim() || "our fest";
+  const co = company ? await one<{ industry: string | null; sector_group: string | null }>(
+    "select industry, sector_group from companies where ds=$1 and name=$2 limit 1", [ctx.ds.id, company]) : null;
+  const known = co ? [co.industry && `industry: ${co.industry}`, co.sector_group && `sector group: ${co.sector_group}`].filter(Boolean).join("; ") : "";
   const prompt = `Rewrite this sponsorship follow-up email for a college entrepreneurship fest. Keep every fact and number exactly as given; do not invent offers, discounts, deadlines or numbers. Keep it short, warm and professional, Indian business English, no em dashes. Format it as a real email: greeting on its own line, a blank line between paragraphs, and the sign-off and name on their own lines at the end (use \\n line breaks in the JSON string). ${instruction ? "Extra instruction: " + instruction : ""}
-Company: ${company || ""}
+Fest name: ${fest}. If you name the fest, use exactly this name; never invent another name for it.
+Company: ${company || ""}${known ? ` (${known})` : ""}. Personalise only with these details and what the email already says. Do not guess what the company does from its name and do not describe its focus, values or products beyond these details.
 Return only JSON: {"subject": "...", "body": "..."}
 
 Subject: ${subject}
