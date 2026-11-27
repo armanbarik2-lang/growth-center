@@ -1,10 +1,15 @@
-import { GoogleGenAI, Content, FunctionDeclaration, Part, Type, Schema } from "@google/genai";
+import { GoogleGenAI, Content, FunctionDeclaration, FunctionCallingConfigMode, Part, Type, Schema } from "@google/genai";
 import { pool, q, one } from "./db";
 import { Ctx } from "./session";
 import { dashboard, campaignMetrics, notificationsFor } from "./metrics";
 import { myWork } from "./mywork";
+import { MODELS, thinkingFor, isModelMissing, isSlowOrBusy } from "./gemini";
 
-const MODELS = [process.env.GEMINI_MODEL, "gemini-3.5-flash", "gemini-2.5-flash", "gemini-3.1-flash-lite"].filter(Boolean) as string[];
+/** The chat route may run 60 s on Vercel; finish well before that. */
+const TIME_BUDGET_MS = 50_000;
+/** Below this much time left, stop calling tools and ask for the final answer. */
+const FINAL_ROUND_MS = 16_000;
+const MAX_ROUNDS = 6;
 
 export type Proposal = {
   type: "task" | "deal_stage" | "sequence";
@@ -179,20 +184,44 @@ export async function chat(ctx: Ctx, history: Content[], page?: string) {
   const contents: Content[] = [...history];
   const proposals: Proposal[] = [];
   const steps: { tool: string; args: unknown; ok: boolean }[] = [];
+  const started = Date.now();
+  const left = () => TIME_BUDGET_MS - (Date.now() - started);
   let model = MODELS[0];
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < MAX_ROUNDS; i++) {
+    // Last round (by count or by clock): no more tool calls, answer from what is already gathered.
+    const finalRound = i === MAX_ROUNDS - 1 || left() < FINAL_ROUND_MS;
+    if (finalRound && steps.length) {
+      const nudge = { text: "Time is nearly up. Do not call more tools. Answer now from the data already gathered, show the numbers you used, and say what is still unknown." };
+      const last = contents[contents.length - 1];
+      if (last?.role === "user") last.parts = [...(last.parts || []), nudge];
+      else contents.push({ role: "user", parts: [nudge] });
+    }
     let res;
     for (let m = MODELS.indexOf(model); m < MODELS.length; m++) {
+      const ms = Math.max(5_000, left() - 2_000);
       try {
         res = await ai.models.generateContent({
           model: MODELS[m], contents,
-          config: { systemInstruction: systemPrompt(ctx, page), tools: [{ functionDeclarations: TOOLS }], temperature: 0.2 },
+          config: {
+            systemInstruction: systemPrompt(ctx, page),
+            tools: [{ functionDeclarations: TOOLS }],
+            toolConfig: finalRound ? { functionCallingConfig: { mode: FunctionCallingConfigMode.NONE } } : undefined,
+            temperature: 0.2,
+            thinkingConfig: thinkingFor(MODELS[m]),
+            abortSignal: AbortSignal.timeout(ms),
+          },
         });
         model = MODELS[m];
         break;
       } catch (e) {
-        const msg = (e as Error).message || "";
-        if (m === MODELS.length - 1 || !/not found|404|not supported|unknown model|invalid model/i.test(msg)) throw e;
+        const msg = (e as Error).message || (e as Error).name || "";
+        if (isModelMissing(msg) && m < MODELS.length - 1) continue;
+        if (isSlowOrBusy(msg)) {
+          return { reply: steps.length
+            ? "The AI service was too slow to finish this answer in time. The data steps it ran are listed below; please ask again or narrow the question."
+            : "The AI service is busy or slow right now. Please try again in a moment.", proposals, steps, model, history: contents };
+        }
+        throw e;
       }
     }
     if (!res) throw new Error("No model response");
