@@ -15,7 +15,9 @@ const restUntil = new Map<string, number>();
 /** Remember what an error says about a model, so the next request skips it. */
 export function noteFailure(model: string, msg: string) {
   if (isModelMissing(msg)) { missing.add(model); return; }
+  if (isTimeout(msg)) { restUntil.set(model, Date.now() + 45_000); return; }
   if (isBusy(msg)) {
+    if (isDailyQuota(msg)) { restUntil.set(model, Date.now() + 60 * 60_000); return; }
     const m = msg.match(/retry(?:Delay)?["']?\s*(?:in|:)?\s*["']?(\d+(?:\.\d+)?)\s*s/i);
     const secs = Math.min(300, Math.max(15, m ? Number(m[1]) : 60));
     restUntil.set(model, Date.now() + secs * 1000);
@@ -48,6 +50,11 @@ export function isModelMissing(msg: string): boolean {
   return /not found|404|not supported|unknown model|invalid model|is not available/i.test(msg);
 }
 
+/** True when the error says the model's free daily quota is used up. */
+export function isDailyQuota(msg: string): boolean {
+  return /per ?day|PerDay|RPD|daily/i.test(msg);
+}
+
 /** True when a call was cut off by our own time limit. */
 export function isTimeout(msg: string): boolean {
   return /abort|timed? ?out|deadline/i.test(msg);
@@ -67,6 +74,6 @@ export function isSlowOrBusy(msg: string): boolean {
 export function shortReason(model: string, msg: string): string {
   const clean = msg.replace(/key=[^&\s"]+/gi, "key=***").replace(/\s+/g, " ").trim();
   const code = clean.match(/\b(4\d\d|5\d\d)\b/)?.[1];
-  const tag = isTimeout(clean) ? "timed out" : code ? `HTTP ${code}` : "error";
+  const tag = isTimeout(clean) ? "timed out" : code === "429" ? (isDailyQuota(clean) ? "daily free quota used up" : /PerMinute|per ?minute/i.test(clean) ? "per-minute limit" : "quota or rate limit (HTTP 429)") : code ? `HTTP ${code}` : "error";
   return `${model}: ${tag}${clean ? " - " + clean.slice(0, 120) : ""}`;
 }

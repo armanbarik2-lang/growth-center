@@ -28,8 +28,10 @@ Body:
 ${body}`;
   const started = Date.now();
   const tried: string[] = [];
-  for (const model of usableModels()) {
-    const ms = TIME_BUDGET_MS - (Date.now() - started);
+  const order = usableModels();
+  for (const [i, model] of order.entries()) {
+    const left = TIME_BUDGET_MS - (Date.now() - started);
+    const ms = i < order.length - 1 ? Math.min(15_000, left) : left;
     if (ms < 3_000) break;
     try {
       const r = await ai.models.generateContent({ model, contents: prompt, config: { responseMimeType: "application/json", temperature: 0.4, thinkingConfig: thinkingFor(model), abortSignal: AbortSignal.timeout(ms) } });
@@ -41,7 +43,7 @@ ${body}`;
       tried.push(why);
       noteFailure(model, msg);
       console.error("[ai-draft]", why);
-      if (isModelMissing(msg) || isBusy(msg)) continue;
+      if (isModelMissing(msg) || isBusy(msg) || (isSlowOrBusy(msg) && i < order.length - 1)) continue;
       if (isSlowOrBusy(msg)) return err(`The AI service is busy or slow right now. Please try again. (${tried.join("; ")})`, 503);
       return err(`AI error: ${why}`, 502);
     }

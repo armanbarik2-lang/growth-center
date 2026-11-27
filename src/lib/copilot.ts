@@ -3,7 +3,7 @@ import { pool, q, one } from "./db";
 import { Ctx } from "./session";
 import { dashboard, campaignMetrics, notificationsFor, signedKeys, istDay } from "./metrics";
 import { myWork } from "./mywork";
-import { thinkingFor, isModelMissing, isBusy, isSlowOrBusy, shortReason, usableModels, noteFailure } from "./gemini";
+import { thinkingFor, isModelMissing, isBusy, isTimeout, isSlowOrBusy, shortReason, usableModels, noteFailure } from "./gemini";
 
 /** The chat route may run 60 s on Vercel; finish well before that. */
 const TIME_BUDGET_MS = 50_000;
@@ -266,7 +266,8 @@ export async function chat(ctx: Ctx, history: Content[], page?: string) {
     let res;
     const order = usableModels(model);
     for (let m = 0; m < order.length; m++) {
-      const ms = Math.max(5_000, left() - 2_000);
+      // one stuck model may not eat the whole budget: cap each try at 20 s while other models remain
+      const ms = Math.max(5_000, m < order.length - 1 ? Math.min(20_000, left() - 2_000) : left() - 2_000);
       try {
         res = await ai.models.generateContent({
           model: order[m], contents,
@@ -288,7 +289,7 @@ export async function chat(ctx: Ctx, history: Content[], page?: string) {
         noteFailure(order[m], msg);
         console.error("[copilot]", why);
         // Model missing, or busy / over quota with time left: try the next model (each has its own quota).
-        if (m < order.length - 1 && (isModelMissing(msg) || (isBusy(msg) && left() > 12_000))) continue;
+        if (m < order.length - 1 && (isModelMissing(msg) || ((isBusy(msg) || isTimeout(msg)) && left() > 8_000))) continue;
         if (isSlowOrBusy(msg)) {
           return { reply: (steps.length
             ? "The AI service could not finish this answer in time. The data steps it ran are listed below; please ask again or narrow the question."
