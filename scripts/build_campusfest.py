@@ -121,8 +121,9 @@ for r in oh.itertuples():
                     'proposed_value': float(r.proposed_value_inr), 'confirmed_value': float(r.confirmed_value_inr),
                     'owner_id': P(r.owner_id), 'changed_by': 'source data', 'effective_at': ts(r.effective_at)})
 
-# empirical probability of confirming, by furthest open stage reached, among closed deals
-closed = [d for d in deals if d['stage'] in ('partner_confirmed', 'lost', 'withdrawn')]
+# empirical probability of confirming, by furthest stage reached, over ALL opportunities:
+# deals still open at the snapshot count as not confirmed (avoids survivorship bias from closed-only odds)
+closed = deals
 prob = {}
 for k in ['prospecting', 'contacted', 'proposal_sent', 'negotiating']:
     i = IDX[k]
@@ -130,7 +131,7 @@ for k in ['prospecting', 'contacted', 'proposal_sent', 'negotiating']:
     won = [d for d in pool if d['stage'] == 'partner_confirmed']
     prob[k] = round(len(won) / len(pool), 3) if pool else None
 dataset['stage_prob'] = prob
-dataset['prob_source'] = 'Measured from this dataset: share of closed opportunities that reached each stage and ended confirmed.'
+dataset['prob_source'] = 'Measured from this dataset: share of all opportunities that reached each stage and are confirmed at the snapshot (open deals count as not confirmed).'
 
 targets = [{'id': f'cf:T{i+1}', 'ds': DS, 'version': r.target_version, 'effective_at': ts(r.effective_at),
             'qualified_goal': int(r.qualified_brands_goal), 'deals_goal': int(r.confirmed_partnerships_goal),

@@ -47,9 +47,9 @@ export async function POST(req: Request) {
   }
   await q(`insert into deals (id, ds, name, company_id, contact_id, campaign_id, owner_id, support_type, stage, furthest_idx, proposed_value, package)
     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,0,$10,$11)`,
-    [did, ctx.ds.id, `${b.company_name} partnership`, cid, contact, b.campaign_id || null, owner, b.support_type || "cash", first, Number(b.proposed_value) || 0, b.package || null]);
+    [did, ctx.ds.id, `${b.company_name} partnership`, cid, contact, b.campaign_id || null, owner, b.support_type || "cash", first, Math.max(0, Number(b.proposed_value) || 0), b.package || null]);
   await q("insert into deal_history (id, ds, deal_id, stage, proposed_value, confirmed_value, owner_id, changed_by) values ($1,$2,$3,$4,$5,0,$6,$7)",
-    [newId(ctx.ds.id, "H"), ctx.ds.id, did, first, Number(b.proposed_value) || 0, owner, ctx.me.id]);
+    [newId(ctx.ds.id, "H"), ctx.ds.id, did, first, Math.max(0, Number(b.proposed_value) || 0), owner, ctx.me.id]);
   void stageIdx;
   return json({ id: did, company_id: cid });
 }

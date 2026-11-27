@@ -35,6 +35,11 @@ export type CampaignRow = {
   status: Status;
 };
 
+/** True once the dataset's "today" is past the last fest day (end of day, IST): open deals can no longer pay before the fest. */
+export function festOver(ds: Dataset, today = todayOf(ds)) {
+  return today.getTime() > new Date((ds.fest_end || ds.fest_start) + "T23:59:59+05:30").getTime();
+}
+
 export function istDay(d: Date) { return new Date(d.getTime() + 19800000).toISOString().slice(0, 10); }
 function fmtL(v: number) { return `₹${(v / 100000).toFixed(v >= 1000000 ? 1 : 2)}L`; }
 
@@ -99,6 +104,7 @@ export async function campaignMetrics(ds: Dataset, ownerId?: string | null): Pro
   const fmap = new Map(firstN.map((r) => [r.campaign_id as string, r]));
 
   const today = todayOf(ds), week = weekOf(ds, today);
+  const over = festOver(ds, today);
   const allContacted = rows.reduce((s, r) => s + num(r.contacted), 0);
   const allSigned = rows.reduce((s, r) => s + num(r.signed), 0);
   const overallRate = allContacted ? allSigned / allContacted : 0;
@@ -119,7 +125,7 @@ export async function campaignMetrics(ds: Dataset, ownerId?: string | null): Pro
       listed: num(r.listed), contacted: num(r.contacted), attempts: num(r.attempts), responded: num(r.responded), meetings: num(r.meetings),
       sends: num(r.sends), bounces: num(r.bounces), replies: num(r.replies),
       deals_total: num(r.deals_total), deals_open: num(r.deals_open), signed: num(r.signed), signed_value: num(r.signed_value),
-      signed_cash: num(r.signed_cash), lost: num(r.lost), pipeline_value: num(r.pipeline_value), weighted_value: num(r.weighted_value),
+      signed_cash: num(r.signed_cash), lost: num(r.lost), pipeline_value: num(r.pipeline_value), weighted_value: over ? 0 : num(r.weighted_value),
       good_leads: num(r.good_leads), meetings_reached: num(r.meetings_reached), sanction_reached: num(r.sanction_reached),
       contacted_first_n: num(f.contacted_first_n), good_leads_first_n: num(f.good_leads_first_n), meetings_first_n: num(f.meetings_first_n),
       win_rate: null, response_rate: null, cost_per_signed: null,
@@ -226,11 +232,25 @@ export async function dashboard(ds: Dataset, ownerId?: string | null) {
   const anyPay = await one<Record<string, unknown>>("select count(*)::int n from payments where ds=$1", [ds.id]);
   const hasPayments = num(anyPay?.n) > 0;
   const BEFORE_SHARE = 0.55; // deck: 50% advance + 50% x 10% upfront payers (base end)
-  const projectedBefore = hasPayments ? num(pay?.collected_before_fest) + num(pay?.due_before_fest) + weightedFast * BEFORE_SHARE : null;
+  const contracted = num(pay?.collected_before_fest) + num(pay?.due_before_fest);
+  const pipelinePart = weightedFast * BEFORE_SHARE;
+  const projectedBefore = hasPayments ? contracted + pipelinePart : null;
+  // plan rate = odds of signing for an untouched prospect; observed = signed so far / companies contacted so far
+  const firstOpen = ds.stages.find((s) => s.kind === "open")?.key || "";
+  const planRate = Number((ds.stage_prob || {})[firstOpen]) || null;
+  const contactedAll = campaigns.reduce((s, c) => s + c.contacted, 0), signedAll = campaigns.reduce((s, c) => s + c.signed, 0);
+  const observedRate = contactedAll ? signedAll / contactedAll : null;
+  const atObserved = hasPayments && planRate && observedRate !== null ? contracted + pipelinePart * Math.min(1, observedRate / planRate) : null;
+  const over = festOver(ds, today);
 
   // targets (latest version effective by today)
   const targets = await q<Record<string, unknown>>(`select * from targets where ds=$1 order by effective_at, id`, [ds.id]);
-  const activeTargets = targets.filter((t) => new Date(t.effective_at as string) <= today);
+  const effective = targets.filter((t) => new Date(t.effective_at as string) <= today);
+  const latestAt = effective.length ? Math.max(...effective.map((t) => new Date(t.effective_at as string).getTime())) : 0;
+  const activeTargets = effective.filter((t) => new Date(t.effective_at as string).getTime() === latestAt);
+  const superseded = effective.filter((t) => new Date(t.effective_at as string).getTime() < latestAt)
+    .map((t) => ({ version: t.version as string, effective_at: t.effective_at as string, replaced_at: new Date(latestAt).toISOString(),
+      deals_goal: t.deals_goal === null ? null : num(t.deals_goal), qualified_goal: t.qualified_goal === null ? null : num(t.qualified_goal) }));
   const qualified = await one<Record<string, unknown>>(`select count(*) filter (where qualification='qualified') n from companies where ds=$1 ${ownerId ? "and owner_id=$2" : ""}`, params);
 
   // reached-stage funnel
@@ -267,6 +287,7 @@ export async function dashboard(ds: Dataset, ownerId?: string | null) {
   const minWeek = Math.min(1, ...trend.map((t) => num(t.wk)));
   for (let w = minWeek; w <= lastWeek; w++) {
     const t = tmap.get(w); cumN += num(t?.n); cumV += num(t?.v);
+    if (w === lastWeek) for (const [wk, x] of tmap) if (wk > lastWeek) { cumN += num(x.n); cumV += num(x.v); }
     weekly.push({ week: w, signed: cumN, value: cumV, goal_pace: goal && num(goal.deals_goal) ? +(num(goal.deals_goal) * Math.min(1, Math.max(0, w) / Math.max(1, festWeek - 1))).toFixed(1) : null });
   }
 
@@ -295,11 +316,21 @@ export async function dashboard(ds: Dataset, ownerId?: string | null) {
       collected: hasPayments ? num(pay?.collected) : null, due_before_fest: hasPayments ? num(pay?.due_before_fest) : null,
       overdue: hasPayments ? num(pay?.overdue) : null, projected_before_fest: projectedBefore === null ? null : Math.round(projectedBefore),
       payments_note: hasPayments ? `Projected = collected before fest + payments due before fest + ${Math.round(BEFORE_SHARE * 100)}% of weighted pipeline in fast-paying bets` : "This dataset has no payment records, so cash collected cannot be measured.",
+      before_fest_breakdown: hasPayments ? {
+        contracted: Math.round(contracted), collected_before_fest: num(pay?.collected_before_fest), due_before_fest: num(pay?.due_before_fest),
+        expected_from_pipeline_at_plan_rates: Math.round(pipelinePart), share_of_pipeline_paid_before_fest: BEFORE_SHARE,
+        plan_signing_rate_untouched_prospect: planRate, observed_signing_rate_so_far: observedRate === null ? null : +observedRate.toFixed(4),
+        observed_basis: `${signedAll} signed of ${contactedAll} companies contacted`,
+        projected_at_observed_rate: atObserved === null ? null : Math.round(atObserved),
+        note: "Plan rates are assumptions [A]. The observed rate is early in the campaign, so it is biased low: deals contacted recently have not had time to sign.",
+      } : null,
+      fest_over: over,
+      fest_over_note: over ? "The fest is over at this snapshot: open deals can no longer bring cash before the fest, so the weighted pipeline is 0." : null,
       budget: campaigns.reduce((s, c) => s + (c.budget || 0), 0) || null, spent: campaigns.reduce((s, c) => s + (c.spent || 0), 0) || null,
     },
     funnel: funnelRows, steps,
     outreach: { listed: num(ofn?.listed), contacted: num(ofn?.contacted), responded: num(ofn?.responded), meetings: num(ofn?.meetings) },
-    weekly, targets: targetRows, campaigns,
+    weekly, targets: targetRows, superseded_targets: superseded, campaigns,
     alerts: notifications.team,
   };
 }
@@ -322,7 +353,7 @@ export async function notificationsFor(ds: Dataset, memberId: string | null) {
     from deals d left join activities a on a.company_id=d.company_id and a.ds=d.ds left join members m on m.id=d.owner_id
       left join companies c on c.id=d.company_id
     where d.ds=$1 and d.stage = any($${p.length + 1}::text[]) ${memberId ? "and d.owner_id=$3" : ""}
-    group by d.id, m.name, c.name having $2::date - max(a.occurred_at)::date >= 21 order by last_at limit 50`, [...p, silentStages]);
+    group by d.id, m.name, c.name having $2::date - max(a.occurred_at)::date >= 21 order by last_at`, [...p, silentStages]);
   const pays = await q<Record<string, unknown>>(`
     select p.id, p.kind, p.amount, to_char(p.due_date, 'DD Mon') due, coalesce(c.name, d.name) deal, m.name owner_name, d.owner_id,
       case when p.due_date < $2::date then 'overdue' else 'due_soon' end bucket
@@ -347,7 +378,7 @@ export async function notificationsFor(ds: Dataset, memberId: string | null) {
     ...notesUnread.map((n) => ({ kind: "note", text: `${n.kind === "mom" ? "Meeting notes" : "Update"} from ${n.author_name}: ${n.title}`, sub: String(n.brief || ""), ref: { type: "note", id: n.id }, owner_id: n.author_id })),
     ...(num(notConnected?.n) ? [{ kind: "due_soon", text: `${num(notConnected?.n)} companies not connected: find new contacts`, sub: "Pipeline, column 'Not connected'", ref: { type: "stage", id: "call_attempted" }, owner_id: memberId }] : []),
     ...tasks.map((t) => ({ kind: t.source === "ai" && t.bucket === "later" ? "ai_task" : (t.bucket as string), text: `${t.source === "ai" ? "AI task" : "Task"}: ${t.title}`, sub: `${t.owner_name || ""} · due ${t.due}`, ref: { type: "task", id: t.id }, owner_id: t.owner_id })),
-    ...silent.map((s) => ({ kind: "silent", text: `Silent ${s.days} days: ${s.name}`, sub: `${s.owner_name || ""} · switch contact (3-week rule)`, ref: { type: "deal", id: s.id }, owner_id: s.owner_id })),
+    ...silent.slice(0, 50).map((s) => ({ kind: "silent", text: `Silent ${s.days} days: ${s.name}`, sub: `${s.owner_name || ""} · switch contact (3-week rule)`, ref: { type: "deal", id: s.id }, owner_id: s.owner_id })),
     ...pays.map((x) => ({ kind: x.bucket as string, text: `${x.kind === "full" ? "Full payment" : x.kind === "advance" ? "50% advance" : "50% balance"} ${fmtL(num(x.amount))}: ${x.deal}`, sub: `${x.owner_name || ""} · due ${x.due}`, ref: { type: "payment", id: x.id }, owner_id: x.owner_id })),
   ];
   return { items, unread_notes: notesUnread.length, team: { overdue_tasks: tasks.filter((t) => t.bucket === "overdue").length, silent_leads: silent.length, payments_due: pays.length } };

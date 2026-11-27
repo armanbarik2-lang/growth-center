@@ -25,6 +25,25 @@ type AppCtx = {
 const Ctx = createContext<AppCtx | null>(null);
 export const useApp = () => useContext(Ctx)!;
 
+/** Heads can reload both datasets to their original state (undoes every edit, for every user). */
+function ResetDemo() {
+  const [state, setState] = useState<"idle" | "ask" | "busy" | "done" | "error">("idle");
+  const run = async () => {
+    setState("busy");
+    try { await api("/api/setup", { method: "POST", body: "{}" }); setState("done"); setTimeout(() => window.location.reload(), 800); }
+    catch { setState("error"); }
+  };
+  if (state === "ask") return (
+    <div className="mt-2 rounded-md bg-amber-50 p-2 text-amber-800 dark:bg-amber-950 dark:text-amber-200">
+      Reload both datasets and undo every change made in the app?
+      <div className="mt-1 flex gap-3"><button onClick={run} className="font-semibold underline">Yes, reset</button><button onClick={() => setState("idle")} className="underline">Cancel</button></div>
+    </div>);
+  return (
+    <button onClick={() => setState("ask")} disabled={state === "busy"} className="mt-1 block text-slate-500 hover:underline disabled:opacity-50">
+      {state === "busy" ? "Resetting demo data…" : state === "done" ? "Demo data reset" : state === "error" ? "Reset failed, try again" : "Reset demo data"}
+    </button>);
+}
+
 const NAV_HEAD = [
   { href: "/", label: "Overview", icon: "▦" },
   { href: "/strategies", label: "Strategies", icon: "◎" },
@@ -126,6 +145,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-2"><span className="font-medium text-slate-700 dark:text-slate-200">{me.name}</span><Badge tone={isHead ? "indigo" : "slate"}>{isHead ? "Head" : "Member"}</Badge></div>
             {me.sector_group && <div className="mt-0.5">{me.sector_group}</div>}
             <button onClick={signOut} className="mt-2 text-indigo-600 hover:underline dark:text-indigo-400">Switch user or dataset</button>
+            {isHead && <ResetDemo />}
           </div>
         </aside>
 
@@ -134,7 +154,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             <div className="flex min-w-0 items-center gap-2">
               <Badge tone={meta.ctx.ds.simulated ? "violet" : "green"}>{meta.ctx.ds.simulated ? "SIMULATED" : "ORIGINAL DATA"}</Badge>
               <span className="truncate text-sm font-medium">{meta.ctx.ds.name}</span>
-              <span className="hidden text-xs text-slate-500 lg:inline">· {meta.ctx.ds.as_of ? `snapshot ${fdate(meta.ctx.ds.as_of)}` : `today ${fdate(meta.ctx.today)}`} · outreach week {meta.ctx.week} · fest {fdate(meta.ctx.ds.fest_start)}{meta.ctx.ds.fest_end && meta.ctx.ds.fest_end !== meta.ctx.ds.fest_start ? ` to ${fdate(meta.ctx.ds.fest_end)}` : ""}</span>
+              <span className="hidden text-xs text-slate-500 lg:inline">· {meta.ctx.ds.as_of ? (meta.ctx.ds.simulated ? `demo clock ${fdate(meta.ctx.ds.as_of)}` : `snapshot ${fdate(meta.ctx.ds.as_of)}`) : `today ${fdate(meta.ctx.today)}`} · outreach week {meta.ctx.week} · fest {fdate(meta.ctx.ds.fest_start)}{meta.ctx.ds.fest_end && meta.ctx.ds.fest_end !== meta.ctx.ds.fest_start ? ` to ${fdate(meta.ctx.ds.fest_end)}` : ""}</span>
             </div>
             <div className="ml-auto flex items-center gap-2">
               {isHead && (

@@ -11,6 +11,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const b = await req.json();
   const status = b.status as string;
   if (!["due", "paid", "written_off"].includes(status)) return err("Bad status");
+  if (b.amount !== undefined && b.amount !== null && !(Number.isFinite(Number(b.amount)) && Number(b.amount) >= 0)) return err("Amount must be a number, 0 or more");
   await q("update payments set status=$1, paid_at = case when $1='paid' then coalesce($2::timestamptz, now()) else null end, amount=coalesce($3, amount) where id=$4",
     [status, b.paid_at || null, b.amount ?? null, id]);
   // keep deal stage in step with payments in the simulated plan
