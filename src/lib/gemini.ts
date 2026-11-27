@@ -19,7 +19,25 @@ export function isModelMissing(msg: string): boolean {
   return /not found|404|not supported|unknown model|invalid model|is not available/i.test(msg);
 }
 
+/** True when a call was cut off by our own time limit. */
+export function isTimeout(msg: string): boolean {
+  return /abort|timed? ?out|deadline/i.test(msg);
+}
+
+/** True when the model refused for load or quota reasons; another model (own quota) may still answer. */
+export function isBusy(msg: string): boolean {
+  return /429|resource.?exhausted|quota|rate.?limit|overloaded|503|unavailable|500|internal/i.test(msg);
+}
+
 /** True when a call failed only because it ran out of its time slice or was rate limited. */
 export function isSlowOrBusy(msg: string): boolean {
-  return /abort|timed? ?out|deadline|429|resource.?exhausted|overloaded|503|unavailable/i.test(msg);
+  return isTimeout(msg) || isBusy(msg);
+}
+
+/** Short, key-free reason for showing to the user and in the server log. */
+export function shortReason(model: string, msg: string): string {
+  const clean = msg.replace(/key=[^&\s"]+/gi, "key=***").replace(/\s+/g, " ").trim();
+  const code = clean.match(/\b(4\d\d|5\d\d)\b/)?.[1];
+  const tag = isTimeout(clean) ? "timed out" : code ? `HTTP ${code}` : "error";
+  return `${model}: ${tag}${clean ? " - " + clean.slice(0, 120) : ""}`;
 }

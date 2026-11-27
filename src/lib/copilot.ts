@@ -3,7 +3,7 @@ import { pool, q, one } from "./db";
 import { Ctx } from "./session";
 import { dashboard, campaignMetrics, notificationsFor } from "./metrics";
 import { myWork } from "./mywork";
-import { MODELS, thinkingFor, isModelMissing, isSlowOrBusy } from "./gemini";
+import { MODELS, thinkingFor, isModelMissing, isBusy, isSlowOrBusy, shortReason } from "./gemini";
 
 /** The chat route may run 60 s on Vercel; finish well before that. */
 const TIME_BUDGET_MS = 50_000;
@@ -186,6 +186,7 @@ export async function chat(ctx: Ctx, history: Content[], page?: string) {
   const steps: { tool: string; args: unknown; ok: boolean }[] = [];
   const started = Date.now();
   const left = () => TIME_BUDGET_MS - (Date.now() - started);
+  const tried: string[] = [];
   let model = MODELS[0];
   for (let i = 0; i < MAX_ROUNDS; i++) {
     // Last round (by count or by clock): no more tool calls, answer from what is already gathered.
@@ -215,13 +216,17 @@ export async function chat(ctx: Ctx, history: Content[], page?: string) {
         break;
       } catch (e) {
         const msg = (e as Error).message || (e as Error).name || "";
-        if (isModelMissing(msg) && m < MODELS.length - 1) continue;
+        const why = shortReason(MODELS[m], msg);
+        tried.push(why);
+        console.error("[copilot]", why);
+        // Model missing, or busy / over quota with time left: try the next model (each has its own quota).
+        if (m < MODELS.length - 1 && (isModelMissing(msg) || (isBusy(msg) && left() > 12_000))) continue;
         if (isSlowOrBusy(msg)) {
-          return { reply: steps.length
-            ? "The AI service was too slow to finish this answer in time. The data steps it ran are listed below; please ask again or narrow the question."
-            : "The AI service is busy or slow right now. Please try again in a moment.", proposals, steps, model, history: contents };
+          return { reply: (steps.length
+            ? "The AI service could not finish this answer in time. The data steps it ran are listed below; please ask again or narrow the question."
+            : "The AI service is busy or slow right now. Please try again in a moment.") + `\n\n(Details: ${tried.join("; ")})`, proposals, steps, model, history: contents };
         }
-        throw e;
+        throw new Error(why);
       }
     }
     if (!res) throw new Error("No model response");
