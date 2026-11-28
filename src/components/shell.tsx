@@ -7,6 +7,7 @@ import { cx, Badge } from "./ui";
 import { demoEmail } from "@/lib/demo-email";
 import { AlertList } from "./alerts";
 import { CopilotPanel } from "./copilot";
+import { Tour, startTour, type TourStep } from "./tour";
 
 export type Stage = { key: string; label: string; kind: string; funnel_label?: string };
 export type Member = { id: string; ds: string; name: string; role: "head" | "member"; sector_group: string | null; title: string | null };
@@ -126,6 +127,35 @@ export function Shell({ children }: { children: React.ReactNode }) {
       : r.type === "deal" ? `/pipeline?deal=${encodeURIComponent(r.id)}` : r.type === "note" ? "/updates" : r.type === "stage" ? `/pipeline?stage=${r.id}` : r.type === "outreach" ? `/outreach${r.id ? "?tab=" + r.id : ""}` : "/tasks");
   };
   const active = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
+  const sim = meta.ctx.ds.simulated;
+  const nav = (h: string) => [`[data-tour="nav-${h}"]`];
+  const askAi: TourStep = { target: ['[data-tour="ask-ai"]'], title: "Ask the AI copilot",
+    body: "It answers from the live data and shows the numbers behind each answer. It suggests the plan's agreed next move, and changes nothing until you click Confirm. It runs on a free tier, so if it says it is busy, wait a minute.",
+    action: { label: "Ask a sample question", run: () => openCopilot(isHead ? (sim ? "Which strategies are behind this week?" : "How many partnerships were confirmed as of 31 March 2025?") : "What should I do first today?") } };
+  const tourSteps: TourStep[] = isHead ? [
+    { path: "/", title: `Welcome to Growth Center`, body: sim
+      ? "This is the sponsorship command center for GEF Mumbai 2027. The clock is fixed at Fri 27 Nov 2026 (outreach week 5), so the numbers match the deck. About a minute; skip any time with Esc."
+      : "This is CampusFest 2025, the dataset from the brief, loaded as is (exact duplicate rows removed). The fest is over, so you see the final state. About a minute; skip any time with Esc." },
+    { path: "/", target: ["text:Cash before fest (projected)"], title: "The number Challenge B is judged on", body: sim
+      ? "Projected cash before the fest: cash collected + payments due + 55% of the weighted pipeline. Hover the i to see the same projection at the signing rate seen so far."
+      : "This dataset has no payment records, so the app says so instead of guessing a cash figure." },
+    { path: "/", target: ["text:Targets vs pace"], title: "Targets against pace", body: "Each bar is a target. The tick shows where we should be today, so falling behind is visible weeks before the fest." },
+    { path: "/", target: ["text:Strategies"], title: "Each bet, judged by its own line", body: "Status (scale, change, stop or testing) is computed from the pre-agreed thresholds in the deck, never set by hand." },
+    { path: "/strategies", target: nav("/strategies"), title: "Strategies", body: "Each bet's PACT score, budget and spend, early test and KPI. Click a strategy to see its detail; heads can edit owners, budgets and thresholds." },
+    { path: "/pipeline", target: nav("/pipeline"), title: "Pipeline", body: "Every company by stage. Open one to move its stage, log a call or switch contact. Moving a deal to Signed creates its 50/50 payment plan automatically." },
+    { path: "/outreach", target: nav("/outreach"), title: "Email sequences", body: "The GES follow-up engine: 12 steps over 21 days. A reply stops it; three silent weeks flags the lead to switch contact." },
+    { path: "/payments", target: nav("/payments"), title: "Payments & deliverables", body: "Every instalment as due, overdue, paid or written off, and what each sponsor is owed before the branding report unlocks the balance." },
+    { target: ['[data-tour="bell"]'], title: "The Monday checks, as alerts", body: "Silent leads, overdue tasks and payments due soon, grouped by type." },
+    askAi,
+    { title: "That's the tour", body: <>Try the member view: sign out and pick a member such as Aarav Shah. <b>Reset demo data</b> (bottom left) undoes every change, so test freely. Reopen this tour from <b>? Tour</b> at the top.</> },
+  ] : [
+    { path: "/", title: "Welcome to Growth Center", body: "This is a member's view: your own goals and work, without team cash or budgets. About a minute; skip any time with Esc." },
+    { path: "/", target: ["text:My goals", "text:My results"], title: "Your goals against pace", body: "Calls, good leads, meetings and deals, from the GES funnel. The tick shows where you should be today." },
+    { path: "/pipeline", target: nav("/pipeline"), title: "Your pipeline", body: "Companies in your sector group. You can edit only your own deals; roles are enforced on the server." },
+    { path: "/tasks", target: nav("/tasks"), title: "Tasks", body: "Your tasks with due dates, including the ones the follow-up engine creates when a sponsor replies." },
+    askAi,
+    { title: "That's the tour", body: <>Sign out and pick a head to see the whole team&rsquo;s view. Reopen this tour from <b>? Tour</b> at the top.</> },
+  ];
 
   return (
     <Ctx.Provider value={{ meta, me, isHead, members, heads, stages: meta.ctx.ds.stages, view, setView, tick, refresh, canEdit, openCopilot }}>
@@ -141,7 +171,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <div className="px-5 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{isHead ? "Team workspace" : "My workspace"}</div>
           <nav className="scroll-thin flex-1 space-y-0.5 overflow-y-auto px-2.5">
             {NAV.map((n) => (
-              <Link key={n.href} href={n.href} className={cx("relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
+              <Link key={n.href} href={n.href} data-tour={`nav-${n.href}`} className={cx("relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
                 active(n.href) ? "bg-indigo-50 font-medium text-indigo-700 dark:bg-indigo-950/70 dark:text-indigo-300" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800")}>
                 {active(n.href) && <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-indigo-600" />}
                 <span className={cx("w-4 text-center", active(n.href) ? "text-indigo-600 dark:text-indigo-300" : "text-slate-400")}>{n.icon}</span>{n.label}
@@ -184,7 +214,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
                 </label>
               )}
               <div className="relative">
-                <button onClick={() => setBell(!bell)} className="relative rounded-lg px-2 py-1 text-sm hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Notifications">🔔
+                <button data-tour="bell" onClick={() => setBell(!bell)} className="relative rounded-lg px-2 py-1 text-sm hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Notifications">🔔
                   {urgent > 0 && <span className="absolute -right-0.5 -top-0.5 rounded-full bg-rose-500 px-1 text-[10px] text-white">{urgent}</span>}
                 </button>
                 {bell && (
@@ -195,10 +225,11 @@ export function Shell({ children }: { children: React.ReactNode }) {
                 )}
               </div>
               <button onClick={toggleDark} className="rounded-lg px-2 py-1 text-sm text-slate-500 transition hover:bg-slate-100 dark:hover:bg-slate-800" title="Light / dark mode">{dark ? "☀" : "☾"}</button>
-              <button onClick={() => { setSeed(undefined); setPanel(!panel); }} className={cx("rounded-lg px-3.5 py-1.5 text-sm font-medium transition", panel ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/20" : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-950 dark:text-indigo-300")}>✦ Ask AI</button>
+              <button onClick={startTour} className="whitespace-nowrap rounded-lg px-2 py-1 text-sm text-slate-500 transition hover:bg-slate-100 dark:hover:bg-slate-800" title="Guided tour of the app">? Tour</button>
+              <button data-tour="ask-ai" onClick={() => { setSeed(undefined); setPanel(!panel); }} className={cx("rounded-lg px-3.5 py-1.5 text-sm font-medium transition", panel ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/20" : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-950 dark:text-indigo-300")}>✦ Ask AI</button>
             </div>
             <nav className="flex w-full gap-1 overflow-x-auto md:hidden">
-              {NAV.map((n) => <Link key={n.href} href={n.href} className="whitespace-nowrap rounded-md px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800">{n.label}</Link>)}
+              {NAV.map((n) => <Link key={n.href} href={n.href} data-tour={`nav-${n.href}`} className="whitespace-nowrap rounded-md px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800">{n.label}</Link>)}
             </nav>
           </header>
           <div className="flex min-h-0 flex-1">
@@ -211,6 +242,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </div>
+      <Tour steps={tourSteps} />
       {toast && (
         <button onClick={() => { setToast(null); router.push("/updates"); }} className="fixed bottom-5 right-5 z-50 w-80 rounded-xl border border-violet-200 bg-white p-3 text-left shadow-xl dark:border-violet-800 dark:bg-slate-900">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-violet-600">New update</div>

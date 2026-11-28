@@ -1,6 +1,6 @@
 # Growth Center
 
-**A sponsorship command center for GEF Mumbai 2027: a plan to raise sponsorship cash before the fest, and a live product to run it.**
+**A plan to raise sponsorship cash before GEF Mumbai 2027, and a live product to run it.**
 
 [Live app](https://growth-center-seven.vercel.app) · [Strategy deck (PDF)](docs/deck.pdf) · [Source code](https://github.com/armanbarik2-lang/growth-center)
 
@@ -10,32 +10,33 @@ Arman Barik · 22ME3EP10 · RISA Labs, Growth APM assignment · Challenge B: Spo
 
 ## 1. At a glance
 
-- **The goal.** Challenge B asks for the most sponsorship *cash collected before the fest*, not the most deals signed. My fest is the Global Entrepreneurship Fest (GEF), Mumbai, on 30 and 31 January 2027, run by a premier public institute.
-- **The target.** ₹12.1L to ₹21.5L in cash before the fest, from ₹26L to ₹40L of signed sponsorship. The low end is a base case built on my team's conversion rates at GES (the Global Entrepreneurship Summit, IIT Kharagpur). The high end is a stretch case, with everything above the base already cut by 25% for realism.
+- **The goal.** Challenge B asks for the most sponsorship *cash collected before the fest*, not the most deals signed. My fest is the Global Entrepreneurship Fest (GEF), Mumbai, 30 and 31 January 2027, run by a premier public institute.
+- **The target.** ₹12.1L to ₹21.5L in cash before the fest, from ₹26L to ₹40L of signed sponsorship. The low end uses my team's conversion rates at GES (the Global Entrepreneurship Summit, IIT Kharagpur); the high end is a stretch case with everything above the base cut by 25%.
 - **The insight.** In the provided CampusFest data, warm paths (introductions, referrals and an interest form) were only 13% of outreach attempts (48 of 370) but produced all 24 confirmed partnerships. Cold outreach produced none.
 - **The bets.** Five strategies, ranked with a framework I call PACT (Payout, Acceptance, Contact, Timing), plus mass email alongside. Together they are worth ₹12.0L to ₹17.5L of signed value before the 25% cut, on a ₹60K budget.
-- **How I will know what works.** Each bet has an early test and a pre-agreed line to scale, change or stop. All six tests are read by week 9 and reviewed every Monday.
-- **The product.** Growth Center runs the plan: a live dashboard of targets, funnel and cash; tools for the pipeline, email follow-ups, tasks and payments; and an AI copilot that answers from live data and acts only after you confirm.
+- **The cash lever.** Sponsors who pay 100% upfront get 1 to 3 press articles on the partnership instead of a discount, to bring cash forward ([9.4](#94-rules-limits-and-what-i-rejected)).
+- **How I will know what works.** Each bet has an early test and a pre-agreed line to scale, change or stop, all read by week 9 and reviewed every Monday.
+- **The product.** Growth Center runs the plan: a live dashboard of targets, funnel and cash; tools for pipeline, follow-ups, tasks and payments; and an AI copilot that answers from live data and acts only after you confirm.
 
 ## 2. Try it in 2 minutes
 
-**Sign in.** Open the [live app](https://growth-center-seven.vercel.app), type any email address and click **Send code**. As this is a demo, the 6-digit code appears on screen and fills itself in. If your email is not one of the team accounts, choose a view, for example *GEF Mumbai 2027 · Head*. To sign in as a specific person, click their name under **Team accounts**.
+**Sign in.** Open the [live app](https://growth-center-seven.vercel.app), type any email and click **Send code**; in this demo the 6-digit code appears on screen and fills itself in. Then choose a view, such as *GEF Mumbai 2027 · Head*, or click a name under **Team accounts** to sign in as that person.
 
 **Two workspaces.**
 
 | Workspace | What it is | Best view to start with |
 | --- | --- | --- |
-| GEF Mumbai 2027 | Simulated from my plan: 3 heads, 10 members and about 1,400 fictional companies. The clock is fixed at Friday 27 November 2026 (week 5), so the numbers match the deck. | Head (Ishita Rao) |
-| CampusFest 2025 | The original dataset from the brief, unchanged except that exact duplicate rows are removed. The fest is over (12 and 13 April 2025). | Head (Sponsorship Lead) |
+| GEF Mumbai 2027 | Simulated from my plan: 3 heads, 10 members, about 1,400 fictional companies. The clock is fixed at Fri 27 Nov 2026 (week 5) to match the deck. | Head (Ishita Rao) |
+| CampusFest 2025 | The brief's dataset, with only exact duplicate rows removed. The fest is over (12 and 13 April 2025). | Head (Sponsorship Lead) |
 
 **A short tour.**
 
 1. **Overview:** targets against pace, projected cash before the fest, the funnel and the weekly trend.
 2. **Strategies:** each bet's PACT score, budget, early test and status (scale, change, stop or testing).
-3. **Pipeline:** every company by stage. Open one to change its stage or value, log a call, add a note or switch to a new contact.
+3. **Pipeline:** every company by stage. Open one to change its stage or value, log a call, add a note or switch contact.
 4. **Payments & deliverables:** the 50/50 terms, what is due or overdue, and what each sponsor is owed.
 5. **AI copilot:** ask anything about the data (questions below).
-6. **A member's view:** sign out and pick a member, such as Aarav Shah. Members see their own goals and work, not team cash.
+6. **A member's view:** sign out and pick a member, such as Aarav Shah, to see their own goals and work without team cash.
 
 **Questions to ask the copilot.**
 
@@ -50,7 +51,7 @@ Arman Barik · 22ME3EP10 · RISA Labs, Growth APM assignment · Challenge B: Spo
 | Create a task for Orion Mobility's owner to chase the overdue advance. | A proposed action that changes nothing until you click Confirm |
 | *(After moving a deal to Signed in Pipeline)* How many deals are signed now? | Answers that follow data changes immediately |
 
-**Good to know.** Heads can click **Reset demo data** (bottom left) to undo all changes. The copilot runs on Google Gemini's free tier; if it says it is busy, wait about a minute and ask again.
+**Good to know.** An optional 1-minute guided tour is offered on first sign-in (**Take the tour** or **No thanks**) and can be reopened from **? Tour** at the top. Heads can click **Reset demo data** (bottom left) to undo all changes. The copilot runs on Gemini's free tier; if it says it is busy, wait a minute and ask again.
 
 ## 3. Contents
 
@@ -74,7 +75,7 @@ Arman Barik · 22ME3EP10 · RISA Labs, Growth APM assignment · Challenge B: Spo
 
 ## 4. How to read this document
 
-**Every fact is tagged by its source.** The brief asks for sourced facts to be kept apart from assumptions, so the deck, this document and the app share four tags.
+**Every fact is tagged by its source,** as the brief asks, with the same four tags in the deck, this document and the app.
 
 | Tag | Meaning |
 | --- | --- |
@@ -86,20 +87,20 @@ Arman Barik · 22ME3EP10 · RISA Labs, Growth APM assignment · Challenge B: Spo
 **Units and terms.**
 
 - **Money** is in Indian rupees, in lakh: ₹1L = ₹1,00,000. **Dates** are in Indian Standard Time.
-- **Signed** means a sponsor has agreed to a deal. **Cash before the fest** means money received before 30 January 2027. The two differ because sponsors pay 50% at signing and 50% after the fest's branding report.
+- **Signed** means a sponsor has agreed to a deal; **cash before the fest** is money received before 30 January 2027. They differ because sponsors pay 50% at signing and 50% after the branding report.
 - **Base case** applies my team's GES conversion rates to about 1,000 companies. **Stretch case** adds a higher close rate, the five bets and mass email, then cuts that extra by 25%.
 
-**How the three deliverables fit.** The deck makes the decisions, this document shows the working, and the app tracks the plan live against real numbers.
+**How the three deliverables fit.** The deck makes the decisions, this document shows the working, and the app runs the plan live.
 
 ## 5. The problem and my approach
 
-**The challenge.** RISA Labs set a major college fest in a Tier 1 Indian city, with limited time, budget and people. Challenge B asks how to maximise the sponsorship cash collected *before* the fest, which makes timing as important as volume: a deal signed late, or paid only after the event, adds little to the number that counts.
+**The challenge.** A major college fest in a Tier 1 Indian city, with limited time, budget and people. Challenge B asks how to maximise sponsorship cash collected *before* the fest, so timing matters as much as volume: a deal signed late, or paid after the event, adds little to the number that counts.
 
-**Why I chose it.** Sponsorship is the area I know best. I lead the Corporate & Media Relations portfolio at the Entrepreneurship Cell, IIT Kharagpur, and across more than three years of my college involvement I have overseen sponsorships and partnerships for initiatives such as the Global Entrepreneurship Summit (GES). This has given me first-hand experience of how sponsors are found, priced, signed and followed up for payment, and of how much signed value actually arrives before an event. The plan's starting conversion rates, price list and payment terms come from that experience, and each is tagged [Y].
+**Why I chose it.** Sponsorship is the area I know best. I lead the Corporate & Media Relations portfolio at the Entrepreneurship Cell, IIT Kharagpur, and over more than three years I have overseen sponsorships for initiatives such as the Global Entrepreneurship Summit (GES). I know first-hand how sponsors are found, priced, signed and chased for payment, and how much signed value arrives before an event. The plan's starting rates, price list and payment terms come from that experience, tagged [Y].
 
-**The fest.** GEF Mumbai is held on 30 and 31 January 2027 by a premier public institute. Outreach starts on 26 October 2026, 13 weeks before the fest week: calling runs for the first 12 weeks (to 15 January), and the time after that is for closing deals and collecting cash. The team has 3 heads and 10 members. Each member owns one sector group of about 100 companies, and the bets add their own target lists.
+**The fest.** GEF Mumbai runs on 30 and 31 January 2027. Outreach starts on 26 October 2026, 13 weeks before the fest week: calling runs for 12 weeks (to 15 January), and the rest is for closing deals and collecting cash. The team has 3 heads and 10 members; each member owns a sector group of about 100 companies, and the bets add their own lists.
 
-**My approach, in three questions.** The deck answers one question per slide, and this document and the app follow the same order.
+**My approach, in three questions,** one per slide, in the same order here and in the app.
 
 | The question | What it decides | Where the working is | Where to see it live |
 | --- | --- | --- | --- |
@@ -107,17 +108,16 @@ Arman Barik · 22ME3EP10 · RISA Labs, Growth APM assignment · Challenge B: Spo
 | **Where will we place our bets?** (Slide 2) | Five ranked strategies, what each adds, its budget, owner and early test | [Prioritisation framework: PACT](#9-prioritisation-framework-pact) | Strategies: scores, budgets, tests |
 | **How will we know what is working?** (Slide 3) | Early signals, the lines to scale, change or stop, and the weekly review | [Experiments and thresholds](#10-experiments-and-thresholds) | Strategies status, alerts, AI copilot |
 
-Every number that follows depends on the research, so it comes first.
 
 ## 6. Research
 
-The plan rests on three kinds of evidence. My GES experience [Y] shows how sponsorship really works, published facts [S] show where the money is, and the CampusFest data [D] shows which outreach actually converts.
+Three kinds of evidence: my GES experience [Y] shows how sponsorship works, published facts [S] show where the money is, and the CampusFest data [D] shows which outreach converts.
 
 ### 6.1 My GES playbook [Y]
 
-GES is the flagship event of the Entrepreneurship Cell, IIT Kharagpur. As lead of the Corporate & Media Relations portfolio, I have led the team across every sector, owned sectors directly and closed key deals myself. GEF Mumbai reuses this playbook.
+GES is the flagship event of the Entrepreneurship Cell, IIT Kharagpur. I have led its sponsorship team across every sector, owned sectors and closed key deals myself. GEF Mumbai reuses this playbook.
 
-**How the team is organised.** Each of the 10 members owns a sector group of about 100 companies, so the workload is even: large sectors are split across two people (IT and SaaS, for example) and small ones are grouped (Oil & Gas, Metals & Mining and PSUs). Members work their own sectors first and go sector-agnostic late in the season.
+**How the team is organised.** Each of the 10 members owns a sector group of about 100 companies: large sectors are split (IT and SaaS across two people) and small ones grouped (Oil & Gas, Metals & Mining and PSUs). Members work their own sectors first and go sector-agnostic late in the season.
 
 **How a sponsor is approached.** Every company goes through the same engine:
 
@@ -126,7 +126,7 @@ GES is the flagship event of the Entrepreneurship Cell, IIT Kharagpur. As lead o
 3. **Follow up** with an email every other day and a call twice a week.
 4. **Switch to another contact** if there is no reply after three weeks.
 
-**How the funnel converts.** Of every 100 companies called, about 10 become good leads (a real conversation), about 5 reach a meeting and about 1 signs. This is the team's working rule from experience rather than a formal count, so the plan uses it as a starting rate and the app checks it every week.
+**How the funnel converts.** Of every 100 companies called, about 10 become good leads (a real conversation), 5 reach a meeting and 1 signs. This is the team's working rule rather than a formal count, so the plan uses it as a starting rate and the app checks it weekly.
 
 **What sponsors buy.** Sponsors pick from fixed slabs, with add-ons on top.
 
@@ -144,16 +144,16 @@ GES is the flagship event of the Entrepreneurship Cell, IIT Kharagpur. As lead o
 
 Higher slabs include more of the deliverables listed in [6.2](#62-what-sponsors-ask-for-and-what-we-deliver-y).
 
-**When the money arrives.** From our records and what the team sees season after season:
+**When the money arrives.** From our records, season after season:
 
 - Outreach starts more than three months before the event, with the slowest deals first. A deal takes anywhere from two days to two months to close.
 - The standard terms are 50% as an advance at signing and 50% after the event's branding report.
 - 10% to 25% of sponsors pay everything upfront, 10% to 15% never pay the balance, and 5% to 10% negotiate a cut.
 - CSR, government and large business groups usually pay after the event, but more than 90% of their money does arrive.
 
-This is why signed value and cash before the event are different numbers, and why Challenge B needs its own calculation.
+So signed value and cash before the event are different numbers, and Challenge B needs its own calculation.
 
-**What GES raises.** GES 2025 brought in about ₹20L in cash plus ₹10L to ₹12L in kind. This is the benchmark that keeps the GEF target honest ([8.5](#85-is-the-target-believable)).
+**What GES raises.** GES 2025 brought in about ₹20L in cash plus ₹10L to ₹12L in kind, the benchmark that keeps the GEF target honest ([8.5](#85-is-the-target-believable)).
 
 **What each sector taught me.** Every sector buys differently, and the bets follow these patterns.
 
@@ -167,13 +167,13 @@ This is why signed value and cash before the event are different numbers, and wh
 | Food stalls | Usually local vendors from the same city. The line-up needs planning for variety. |
 | Fun and engagement zones | A gaming zone, AR and VR set-ups and racing simulators (such as Red Bull's) keep the arena busy, which is what sponsors pay to be near. |
 
-Two lessons apply across sectors. Approvals at large companies take weeks, so they are approached first. And a warm lead from a past season may be no warmer than a fresh one, because the company has since revised its plans, so past sponsors still get a fresh, tailored pitch.
+Two lessons apply everywhere: large companies take weeks to approve, so they are approached first; and a past sponsor may be no warmer than a fresh lead once its plans change, so it still gets a fresh, tailored pitch.
 
-**Tools we used.** Google Sheets to track every company and stage; LinkedIn to find the right person; Apollo and other contact finders for emails and numbers; Gmail with mail merge for proposals and follow-ups; Canva for proposal templates; Google for company research; social media and other fests' websites to see who sponsored last year; and WhatsApp groups for members, members with heads, and heads only. Growth Center replaces the spreadsheet with one live tool built on the same engine.
+**Tools we used.** Google Sheets for tracking; LinkedIn, Apollo and other finders for contacts; Gmail mail merge for proposals and follow-ups; Canva for templates; Google, social media and other fests' websites for research and past sponsors; and WhatsApp groups for coordination. Growth Center replaces the spreadsheet with one live tool on the same engine.
 
 ### 6.2 What sponsors ask for, and what we deliver [Y]
 
-A sponsor pays for something specific, and every GES deal is built from the same set of deliverables. From the Corporate slab upwards, the standard ones (branding, media publicity and video ads) come with every deal, and the slab sets their level and frequency: a higher slab might get five video ads where a lower one gets one or two. Each custom branding avenue is priced on top, at ₹25K to ₹50K.
+Every GES deal is built from the same set of deliverables. From the Corporate slab up, branding, media publicity and video ads come with every deal, and the slab sets how much: five video ads at a high slab, one or two at a lower one. Custom branding is priced on top, at ₹25K to ₹50K each.
 
 <details>
 <summary><b>What each sector asks for</b> (26 sectors in 6 families)</summary>
@@ -215,75 +215,75 @@ A sponsor pays for something specific, and every GES deal is built from the same
 
 </details>
 
-**Not every deal is paid in cash.** Trading platforms pay partly by results, travel platforms mostly in coupons, and consumer brands often in goods. For Challenge B this matters as much as deal size: the plan counts only cash and tracks in-kind value separately.
+**Not every deal is paid in cash.** Trading platforms pay partly by results, travel platforms mostly in coupons and consumer brands often in goods. For Challenge B this matters as much as deal size, so the plan counts only cash and tracks in-kind value separately.
 
 <details>
 <summary><b>The deliverables we offer</b> (10 groups)</summary>
 
 *Visibility*
 
-- **Integrated Logo Unit (ILU):** the logo block at the top of every poster, showing the event is presented by E-Cell in association with the sponsor, plus a place in the sponsor strip at the bottom. Reserved for the Title, Co-title, Powered by and Title Media Partner slabs.
-- **Campus branding:** posters, standees and banners with the sponsor's logo across the venue and campus.
-- **Corporate branding:** the sponsor's name and logo on the stage, ID cards, participant kits and event material, with the most prominent places kept for the top slabs.
-- **Website logo:** the sponsor's logo on the E-Cell website, linked to their site, for 3 months, 6 months, 1 year or 3 years depending on the slab.
-- **Video ads:** the sponsor's video played at the start or end of events. Popular with SaaS and IT companies launching a product.
-- **Newsletter:** a feature in the monthly E-Cell email newsletter.
-- **Custom campaigns:** a social media or offline campaign designed around the sponsor's brand.
+- **Integrated Logo Unit (ILU):** the "presented by E-Cell in association with" logo block on every poster, plus the sponsor strip; Title, Co-title, Powered by and Title Media Partner only.
+- **Campus branding:** posters, standees and banners across the venue and campus.
+- **Corporate branding:** name and logo on the stage, ID cards, participant kits and event material, with the best places for top slabs.
+- **Website logo:** a linked logo on the E-Cell website for 3 months to 3 years, by slab.
+- **Video ads:** played at the start or end of events; popular with IT and SaaS firms launching a product.
+- **Newsletter:** a feature in the monthly E-Cell newsletter.
+- **Custom campaigns:** a social media or offline campaign built around the brand.
 
 *Media and PR*
 
-- **Media partners:** coverage through 20+ media partners, credited as "in association with", "sponsored by" or "powered by", according to the slab.
+- **Media partners:** coverage through 20+ media partners, credited as "in association with", "sponsored by" or "powered by" by slab. Dedicated partnership articles are the reward for paying 100% upfront ([9.4](#94-rules-limits-and-what-i-rejected)).
 
 *Product marketing*
 
-- **Product marketing:** putting the sponsor's product in front of the audience, at the event and on its channels: launches and demos, programme promotion for gaming and digital product companies, sign-up drives for small AI startups, edtech course endorsements, digital campaigns for consumer and fashion brands, and subscription drives for media partners.
+- **Product marketing:** launches and demos, programme promotion for gaming firms, sign-up drives for AI startups, course endorsements for edtech, digital campaigns for consumer and fashion brands, and subscription drives for media partners.
 
 *Experiential*
 
-- **Custom branding avenues:** pieces designed for the sponsor, such as the 3×3 metal logo cubes at the GES 2023 informal night, bands and theme-coloured balloons, each priced at ₹25K to ₹50K.
-- **Merchandise:** the sponsor's merchandise or material handed to attendees, a favourite of banks, edtech companies and firms with a digital product.
-- **Kiosks:** dedicated kiosks and special spaces for the sponsor at the venue.
+- **Custom branding avenues:** pieces made for the sponsor, such as the 3×3 metal logo cubes at the GES 2023 informal night, bands or theme-coloured balloons, at ₹25K to ₹50K each.
+- **Merchandise:** the sponsor's material handed to attendees, a favourite of banks, edtech and digital product firms.
+- **Kiosks:** dedicated kiosks and spaces at the venue.
 
 *Engagement*
 
-- **Speaker slots:** a keynote, panel seat or fireside chat for a senior leader from the sponsor.
-- **Workshops:** a hands-on session run by the sponsor's team with participants.
-- **Competitions:** a custom competition built on the sponsor's own problem statement, case study or hackathon.
-- **Event partnership:** title or exclusive partner of a flagship event, such as Investor Startup Connect, the Expo or MAS (Million At Stake, the IIT Kharagpur version of Shark Tank).
+- **Speaker slots:** a keynote, panel seat or fireside chat for a senior leader.
+- **Workshops:** a hands-on session run by the sponsor's team.
+- **Competitions:** built on the sponsor's own problem statement, case study or hackathon.
+- **Event partnership:** title or exclusive partner of a flagship event, such as Investor Startup Connect, the Expo or MAS (Million At Stake, IIT Kharagpur's Shark Tank).
 
 *Startup access*
 
-- **Empresario track partner:** partnership with a track of Empresario, E-Cell's startup initiative with 5,000+ startups across tracks such as products and services, social impact, deep tech and AI. Priced separately and available as an exclusive; renewable energy and clean tech companies often choose the social impact track.
+- **Empresario track partner:** a track of Empresario, E-Cell's startup initiative with 5,000+ startups (products and services, social impact, deep tech, AI), priced separately and available exclusively; clean tech firms often choose social impact.
 
 *Arena and expo*
 
-- **Stalls:** selling stalls in the arena for food, books, clothing, badges and gift items.
-- **Gaming zone:** a branded gaming area. At GES this was run with Red Bull, tied to their own event in Eastern India.
-- **Auto expo:** a luxury car display at the venue. A Tier 1 city also makes an AI or smart-glasses product expo realistic.
+- **Stalls:** food, books, clothing, badges and gifts.
+- **Gaming zone:** a branded gaming area, run at GES with Red Bull alongside their own event in Eastern India.
+- **Auto expo:** a luxury car display; in a Tier 1 city an AI or smart-glasses expo is also realistic.
 
 *Talent*
 
-- **Employer branding:** a session and visibility that position the sponsor as a place to work.
-- **Campus hiring link:** a connection to the institute's career development cell for official hiring.
+- **Employer branding:** a session and visibility as a place to work.
+- **Campus hiring link:** a connection to the institute's career development cell.
 - **Team interns:** 3 to 4 interns from the participant pool, chosen to the sponsor's needs.
 
 *Data*
 
-- **Attendee data:** shared only with attendees' explicit, purpose-specific consent, never as a raw list.
+- **Attendee data:** only with attendees' explicit, purpose-specific consent, never as a raw list.
 
 *Proof*
 
-- **Branding report:** after the event, a report showing the brand's association and proof that every promised deliverable was completed. It unlocks the second half of the payment.
+- **Branding report:** after the event, proof that every promised deliverable was completed. It unlocks the second half of the payment.
 
 </details>
 
-**Why the branding report matters.** When the deliverables are completed, the deal is usually paid in full; when they fall short, money is lost. In one GES deal, a custom speaker slot drew too small an audience and the balance was never recovered. In another, the sponsor cut ₹50K from a ₹3L deal because the summit ran fewer events than planned. Growth Center therefore tracks each sponsor's deliverables against their deal and flags the branding report before the balance falls due.
+**Why the branding report matters.** Deliverables completed usually means paid in full; shortfalls cost money. In one GES deal a custom speaker slot drew too small an audience and the balance was never recovered; in another the sponsor cut ₹50K from ₹3L because the summit ran fewer events than planned. So Growth Center tracks each sponsor's deliverables and flags the branding report before the balance falls due.
 
 The audience behind all of this is 20K to 25K+ visitors, 120K+ social media reach and a million+ media impressions.
 
 ### 6.3 Why Mumbai [S]
 
-The brief asks for a Tier 1 Indian city. India's eight Tier 1 ("X") cities are Ahmedabad, Bengaluru, Chennai, Delhi, Hyderabad, Kolkata, Mumbai and Pune [[1]](#20-sources). For a sponsorship challenge the deciding question is where the money that pays for fests sits, and Mumbai leads on the measures that matter most for cash before the fest.
+India's eight Tier 1 ("X") cities are Ahmedabad, Bengaluru, Chennai, Delhi, Hyderabad, Kolkata, Mumbai and Pune [[1]](#20-sources). The deciding question is where the money that pays for fests sits, and Mumbai leads on the measures that matter most for cash before the fest.
 
 | Reason | The evidence | What it means for the plan |
 | --- | --- | --- |
@@ -292,13 +292,13 @@ The brief asks for a Tier 1 Indian city. India's eight Tier 1 ("X") cities are A
 | Startup and fintech money | Mumbai took 21% of India's startup funding in FY26 [[4]](#20-sources) and 61% of India's fintech funding in Q1 2026 [[5]](#20-sources) | Funded startups have fresh marketing budgets and want student attention |
 | Decision makers close by | Public sector companies, large firms and senior speakers are easier to meet in person [Y] | Meetings, which convert far better than emails, become practical |
 
-**Why not Bengaluru.** Bengaluru was the strongest alternative, with 33% of India's FY26 startup funding [[4]](#20-sources) and a deep pool of youth-facing tech brands. But this plan is judged on cash before the fest, which comes mostly from large, established payers (banks, conglomerates, public sector companies and CSR budgets), and those are concentrated in Mumbai.
+**Why not Bengaluru.** It was the strongest alternative, with 33% of India's FY26 startup funding [[4]](#20-sources) and many youth-facing tech brands. But cash before the fest comes mostly from large, established payers (banks, conglomerates, public sector companies, CSR budgets), and those are concentrated in Mumbai.
 
-**Timing.** Mumbai's best-known college fests, Mood Indigo and Techfest at IIT Bombay, run in December [[6]](#20-sources). GEF's January dates keep it out of that window, so it does not compete with them for the same sponsor budgets in the same weeks.
+**Timing.** Mumbai's best-known college fests, Mood Indigo and Techfest at IIT Bombay, run in December [[6]](#20-sources), so GEF's January dates avoid competing with them for the same budgets in the same weeks.
 
 ### 6.4 Who sponsors, why, and how I pick them [Y]
 
-**Sponsors buy specific things,** and knowing what each segment wants decides both the pitch and the price.
+**What each segment wants decides the pitch and the price.**
 
 | Segment | What they want | Typical spend |
 | --- | --- | --- |
@@ -310,7 +310,7 @@ The brief asks for a Tier 1 Indian city. India's eight Tier 1 ("X") cities are A
 | Consumer brands | Visibility | Mostly goods in kind, never counted as cash |
 | Media partners | Publicity in exchange | Barter, no cash |
 
-CSR money funds the programme rather than marketing, so the pitch to CSR arms leads with the fest's entrepreneurship goals, and branding appears as an acknowledgement.
+CSR money funds the programme, not marketing, so the CSR pitch leads with the fest's entrepreneurship goals and treats branding as an acknowledgement.
 
 **Four filters decide who is called first.** A company is a strong prospect when all four hold:
 
@@ -319,7 +319,7 @@ CSR money funds the programme rather than marketing, so the pitch to CSR arms le
 3. The right person (the brand, marketing or partnerships head) is reachable.
 4. Its budget timing fits: its marketing plan or financial year still has money to spend.
 
-**Ten sector groups, one per member.** The 1,000 base companies are split into ten groups of roughly equal size, so no member is overloaded.
+**Ten sector groups, one per member,** of roughly equal size.
 
 | # | Sector group | # | Sector group |
 | --- | --- | --- | --- |
@@ -329,15 +329,15 @@ CSR money funds the programme rather than marketing, so the pitch to CSR arms le
 | 4 | Fintech, trading and crypto | 9 | FMCG, edtech, hiring and quick commerce |
 | 5 | Oil and gas, metals and mining, PSUs | 10 | Construction, cement, renewable energy and clean tech |
 
-The bets in section 9 draw on these groups: the IT + AI sweep uses groups 2, 3 and 8; Government + CSR is led by a head with groups 5 and 6; Active sponsors, Conglomerates and mass email draw on every group. Two smaller lists sit with the heads: tourism boards join the Government + CSR bet, and beverage brands are approached as consumer brands, mostly for goods in kind.
+The IT + AI sweep uses groups 2, 3 and 8; Government + CSR uses groups 5 and 6; Active sponsors, Conglomerates and mass email draw on every group. Tourism boards join Government + CSR, and beverage brands are approached as consumer brands, mostly for goods in kind.
 
 ### 6.5 What the provided CampusFest data shows [D]
 
-The brief included one season of data from a fictional fest, CampusFest 2025 (held 12 and 13 April 2025, with records from 15 January to 20 April 2025). I loaded it into Growth Center and checked every figure below against the raw workbook.
+The brief includes one season from a fictional fest, CampusFest 2025 (held 12 and 13 April 2025; records from 15 January to 20 April). I loaded it into Growth Center and checked every figure below against the raw workbook.
 
 **What the file holds.** 180 brands, 270 contacts, 6 outreach campaigns, 950 unique interactions, 433 qualification updates, 58 sponsorship opportunities with 228 stage updates, 3 partner activations and 2 versions of the targets.
 
-**Rules applied before reading any number.** The file's own guidance points out several traps, and both the app and the AI copilot handle each one:
+**Rules applied before reading any number.** The file's guidance names several traps; the app and the copilot handle each one:
 
 - **Duplicates.** 3 interaction rows, 1 qualification row and 2 opportunity history rows repeat after an import retry. These exact repeats are removed; nothing else is changed.
 - **Latest version wins.** Opportunities and qualifications are stored as full histories. The state on any date is the latest record by the end of that day in IST, so later events never leak into earlier snapshots.
@@ -357,7 +357,7 @@ The brief included one season of data from a fictional fest, CampusFest 2025 (he
 | Past Conversation Revival | 44 | 20 | 7 | 0 | ₹0 |
 | **Total** | **370** | | | **24** | **₹22.4L** |
 
-**The finding that shapes the plan.** The three warm paths (introductions, referrals and the interest form) were 48 of 370 attempts, or 13%, yet produced all 24 confirmed partnerships; the 322 cold attempts produced none. Warm introductions converted 8 of 8, a small sample, so I treat the pattern as strong evidence rather than a precise rate. Counting only introductions and referrals as warm, the figures are 30 attempts and 17 deals, and the conclusion holds.
+**The finding that shapes the plan.** The three warm paths (introductions, referrals, interest form) were 48 of 370 attempts (13%) yet produced all 24 confirmed partnerships; the 322 cold attempts produced none. Warm introductions converted 8 of 8, a small sample, so I treat this as strong evidence, not a precise rate. Counting only introductions and referrals as warm (30 attempts, 17 deals), the conclusion holds.
 
 **The rest of the season, in brief.**
 
@@ -366,23 +366,24 @@ The brief included one season of data from a fictional fest, CampusFest 2025 (he
 - **Pace.** Confirmed partnerships stood at 8 by 28 February, 17 by 14 March, 23 by 31 March and 24 at the close. The median deal took 10 days from opportunity to confirmation.
 - **Leakage.** Cobalt Learning was confirmed on 25 February and withdrawn on 20 March. Signed is not the same as safe.
 
-**What this changed in my plan.** Because warm paths win, the bet built on existing relationships (Active sponsors) scores highest on acceptance in PACT, and speakers and referrals are used to open doors. Mass email still runs, because it is cheap and reaches companies no one knows yet, but only alongside the bets and with its own test line. The leakage case is why the plan tracks payments and deliverables after signing, not just signatures.
+**Why the base engine still starts cold.** CampusFest's cold outreach was email and LinkedIn only: no phone calls, and even its 24 cold meetings signed nothing. The GES engine works differently: a call finds the right person before any proposal is sent, and follow-ups mix email with calls [Y]. So the 1% close rate (A1) comes from GES, not from this data, and it is the plan's most important assumption. The app tests it from week 1 by projecting cash at both the plan rate and the observed rate, so a shortfall shows within weeks, not at the fest.
 
-With the evidence in place, the next step is to turn it into numbers, starting with the assumptions every calculation depends on.
+**What this changed in my plan.** Active sponsors, the bet built on existing relationships, scores highest on acceptance in PACT, and speakers and referrals are used to open doors. Mass email still runs because it is cheap and reaches unknown companies, but only alongside the bets and with its own test line. The leakage case is why the app tracks payments and deliverables after signing.
+
 
 ## 7. Assumptions
 
-Some numbers cannot be measured before the season starts. Each one is listed with its basis and what changes if it proves wrong. The app tracks most of them live, so a wrong assumption shows up within weeks, not at the fest.
+Numbers that cannot be measured before the season, each with its basis and what changes if it is wrong. The app tracks most of them live.
 
 | # | Assumption | Value | Basis | Tag | If it is wrong |
 | --- | --- | --- | --- | --- | --- |
-| A1 | Close rate, base case | 1% of companies called | The GES rule: 100 called → 10 good leads → 5 meetings → 1 signed | [Y] | Each 0.1 point is about 1 deal, or ₹2.2L signed |
+| A1 | Close rate, base case | 1% of companies called | The GES rule: 100 called → 10 good leads → 5 meetings → 1 signed | [Y] | Each 0.1 point is about 1 deal, or ₹2.2L signed. CampusFest's cold email and LinkedIn closed nothing, so this is checked weekly ([6.5](#65-what-the-provided-campusfest-data-shows-d)) |
 | A2 | Close rate, stretch case | 1.1% to 1.25% | The bets, better targeting and the live follow-up engine | [A] | The stretch shrinks toward the base |
 | A3 | Average deal size | ₹2.2L | A planning figure within the Strategic slab (₹1.75L to ₹2.5L) | [A] | Each ₹0.2L moves base signed value by ₹2L |
 | A4 | CSR in the base case | ₹4L, paid after the fest | The same ~₹4L as the Government + CSR bet | [A] | Moves total signed value, not cash before the fest |
 | A5 | What the bets add | ₹12.0L to ₹17.5L in total | Deal counts per bet, priced from the GES slabs ([9.3](#93-the-bets)) | [A] [Y] | Read early through each bet's test |
 | A6 | Mass email | About 1 deal of ₹1L to ₹2L | GES experience of cold email | [Y] | Small: the cheapest line in the plan |
-| A7 | Sponsors paying all upfront | 10% to 25% | GES records and team experience | [Y] | Each 10 points moves base cash before the fest by about ₹1.1L |
+| A7 | Sponsors paying all upfront | 10% to 25% | GES records and team experience; the upfront press offer ([9.4](#94-rules-limits-and-what-i-rejected)) aims for the high end | [Y] | Each 10 points moves base cash before the fest by about ₹1.1L |
 | A8 | Lost balances and cuts | 10% to 15% never pay the balance; 5% to 10% cut the price, sized from the GES case of ₹50K off ₹3L | GES records and team experience | [Y] | Moves collection between 91% and 94% |
 | A9 | Who pays after the fest | Government, CSR and large groups; over 90% of their money arrives | GES experience | [Y] | Kept out of the before-fest figure on purpose |
 | A10 | Realism cut | Everything above the base is cut by 25% | Not every bet will work at once | [A] | A deliberate safety margin |
@@ -395,7 +396,7 @@ Some numbers cannot be measured before the season starts. Each one is listed wit
 
 ## 8. Detailed calculations
 
-Every number on the slides comes from the lines below. Each was re-computed in Python, and the low end of every range always uses the more cautious assumption.
+Every number on the slides comes from these lines, re-computed in Python; the low end of each range uses the more cautious assumption.
 
 ### 8.1 Two rules that turn signed value into cash
 
@@ -446,7 +447,7 @@ Every number on the slides comes from the lines below. Each was re-computed in P
 
 ### 8.4 The 25% realism cut
 
-Not every bet will work at once, so everything the stretch adds above the base is cut by 25% (A10): **stretch = base + 75% × (stretch before the cut − base)**. For example, the low end of signed value is ₹26.0L + 75% × (₹36.2L − ₹26.0L) = ₹33.7L.
+Not every bet will work at once, so everything above the base is cut by 25% (A10): **stretch = base + 75% × (stretch before the cut − base)**. For example, the low end of signed value is ₹26.0L + 75% × (₹36.2L − ₹26.0L) = ₹33.7L.
 
 | Measure | Base | Stretch before the cut | **Stretch after the cut** |
 | --- | --- | --- | --- |
@@ -459,7 +460,7 @@ Not every bet will work at once, so everything the stretch adds above the base i
 
 ### 8.5 Is the target believable?
 
-GES 2025 raised about ₹20L in cash with this same playbook [Y]. GEF Mumbai's signed value is 1.3 times that in the base case (₹26.0L ÷ ₹20L) and 1.7 to 2.0 times in the stretch (₹33.7L to ₹40.3L ÷ ₹20L). The step up comes from Mumbai's larger sponsor pool ([6.3](#63-why-mumbai-s)) and the five bets, not from assuming a bigger team.
+GES 2025 raised about ₹20L in cash with the same playbook [Y]. GEF's signed value is 1.3 times that in the base (₹26.0L ÷ ₹20L) and 1.7 to 2.0 times in the stretch (₹33.7L to ₹40.3L ÷ ₹20L). The step up comes from Mumbai's larger sponsor pool ([6.3](#63-why-mumbai-s)) and the five bets, not a bigger team.
 
 ### 8.6 Budget
 
@@ -477,14 +478,14 @@ GES 2025 raised about ₹20L in cash with this same playbook [Y]. GEF Mumbai's s
 
 ### 8.7 How the app keeps these numbers live
 
-The plan is fixed at the start of the season; Growth Center recalculates it whenever the data changes.
+The plan is fixed at the start; Growth Center recalculates it whenever the data changes.
 
 - **Projected cash before the fest** = cash collected before the fest + payments due before the fest + 55% (A12) of the weighted pipeline in fast-paying bets, where each open deal is weighted by its stage odds (A11).
-- **On the GEF demo clock (week 5):** ₹1.25L collected + ₹2.63L due = ₹3.88L contracted, plus ₹15.8L expected from the pipeline at plan rates, gives **₹19.7L**. At the signing rate seen so far (4 deals from 677 companies contacted, 0.59% against the plan's 1%), the projection is **₹13.2L**. Both sit above the base target. The app shows both, because the observed rate is early and biased low: recently contacted companies have not yet had time to sign.
+- **On the GEF demo clock (week 5):** ₹1.25L collected + ₹2.63L due = ₹3.88L contracted, plus ₹15.8L expected from the pipeline at plan rates, gives **₹19.7L**. At the signing rate seen so far (4 deals from 677 companies contacted, 0.59% against the plan's 1%), the projection is **₹13.2L**. Both clear the base target. The app shows both because the observed rate is early and biased low: recently contacted companies have not had time to sign.
 
 ## 9. Prioritisation framework: PACT
 
-Five bets compete for the same 13 people and ₹60K. To rank them I needed a method that is simple to explain, hard to game and true to how sponsorship deals actually fail. I call it PACT.
+Five bets compete for the same 13 people and ₹60K. To rank them I needed a method that is simple, hard to game and true to how deals fail. I call it PACT.
 
 ### 9.1 How PACT works
 
@@ -497,7 +498,7 @@ Five bets compete for the same 13 people and ₹60K. To rank them I needed a met
 | **C**, Contact | How easily can we reach the decision maker? | Very hard | Very easy |
 | **T**, Timing | How surely is it confirmed before the fest, with cash that is sure to come? | Unsure | Near-certain |
 
-**Why multiply, not add.** A deal needs every factor at once: a large cheque is worth nothing if we cannot reach the person who signs it, or if the cash never arrives. Multiplying lets one weak factor pull a bet down hard, which is how deals really fail. I also considered a weighted scorecard, but adding lets a big payout hide an unreachable contact, its scores sit too close together to defend, and its weights invite argument. PACT has no weights to argue about. Because multiplying also exaggerates small differences, the scores are read as tiers, not exact numbers.
+**Why multiply, not add.** A deal needs every factor at once: a large cheque is worthless if we cannot reach the signer or the cash never arrives. Multiplying lets one weak factor pull a bet down hard, which is how deals fail. A weighted scorecard lets a big payout hide an unreachable contact, bunches scores together and invites argument over weights; PACT has no weights. Because multiplying exaggerates small gaps, scores are read as tiers.
 
 ### 9.2 The ranking
 
@@ -569,6 +570,7 @@ Five bets compete for the same 13 people and ₹60K. To rank them I needed a met
 ### 9.4 Rules, limits and what I rejected
 
 - **Rejected: early-bird discounts.** At GES they did not make sponsors sign sooner, and they lower the value of every deal [Y].
+- **Instead: a reward for paying upfront.** A sponsor who pays 100% at signing gets dedicated press articles on the partnership through our 20+ media partners: 1 for Associate and Corporate, 2 for Strategic and Executive, 3 for Powered by and above. The first article announces the partnership as soon as the payment lands, so the sponsor gets value when we get cash. It costs no cash, keeps the price whole and is proved in the branding report. The aim is to move the upfront share (A7) from 10% toward 25%, which lifts the before-fest share from 55% toward 62.5%. Article capacity is confirmed with the media partners before the offer goes out [A].
 - **Rejected: counting goods in kind as cash.** In-kind support is tracked but never counts toward the target.
 - **Trade-off I accept.** Conglomerates and Government + CSR bring large cheques, but most of their cash lands after the fest. They stay in the plan for total value and are kept out of the before-fest figure.
 - **Limits.** 13 people at 3 to 4 hours a day; event titles must wait for the event line-up; government and large-group approvals are slow, so those bets start in week 1.
@@ -578,7 +580,7 @@ Five bets compete for the same 13 people and ₹60K. To rank them I needed a met
 
 ## 10. Experiments and thresholds
 
-Every bet starts as an experiment, with an early warning signal and a line, agreed in advance, at which it is scaled, changed or stopped. All six tests are read by week 9, and the team reviews them every Monday.
+Every bet starts as an experiment with an early signal and a pre-agreed line to scale, change or stop. All six tests are read by week 9 and reviewed every Monday.
 
 ### 10.1 When to scale, change or stop
 
@@ -602,9 +604,9 @@ The base engine is tracked the same way: calls made against the pace needed to r
 ### 10.3 How the app supports each decision
 
 - **Status per bet.** The Strategies page shows each bet's signal against its line, with a status of scale, change, stop or testing.
-- **Alerts.** Silent leads, overdue tasks and payments due appear on the Overview and in the notification bell, grouped by type.
-- **The AI copilot.** It reads the same lines, explains a status with numbers, suggests the agreed action and turns it into tasks once the user confirms. In the deck's simulated case at week 4, Conglomerates showed 1 meeting per 30 business units, so the status turned amber; the copilot suggested the speaker-invite route, the head confirmed, and three tasks were created.
-- **Kept human on purpose.** Cold calls, meetings and scouting for specific companies stay with people, because that is where judgement and relationships matter most.
+- **Alerts.** Silent leads, overdue tasks and payments due appear on the Overview and in the bell.
+- **The AI copilot.** It reads the same lines, explains a status with numbers and turns the agreed action into tasks once confirmed. In the deck's simulated week 4, Conglomerates showed 1 meeting per 30 units, so it turned amber; the copilot suggested the speaker-invite route, the head confirmed, and three tasks were created.
+- **Kept human on purpose.** Cold calls, meetings and scouting stay with people, where judgement and relationships matter most.
 
 **Where the bets stand on the GEF demo clock (week 5, simulated):**
 
@@ -618,11 +620,9 @@ The base engine is tracked the same way: calls made against the pace needed to r
 | Mass email | Amber | 0.40% replies (8 from 2,000 sends); bounces 1.7% |
 | Event titles | Testing | 1 meeting so far; a signature is due by week 9 |
 
-The rest of this document shows how the plan became a working product.
-
 ## 11. The product: Growth Center
 
-Growth Center is the tool the team would run the season on. Each part of the plan has a home in it: the targets and cash maths from Slide 1, the bets and budgets from Slide 2, and the tests and Monday checks from Slide 3. Heads see the whole team; members see their own work.
+Growth Center is the tool the team would run the season on: Slide 1's targets and cash maths, Slide 2's bets and budgets, and Slide 3's tests and Monday checks each have a home. Heads see the whole team; members see their own work.
 
 ### 11.1 What each page does
 
@@ -642,13 +642,13 @@ Growth Center is the tool the team would run the season on. Each part of the pla
 
 ### 11.2 How the plan's rules run inside the app
 
-- **The follow-up engine.** The GES routine (section 6.1) is built in as a 12-step, 21-day sequence of emails and calls. A reply stops it and creates a task for the owner; three weeks of silence marks the lead "switch contact" and raises an alert. Emails open in the member's own mail app, and the app records each step.
+- **The follow-up engine.** The GES routine (6.1) runs as a 12-step, 21-day sequence of emails and calls. A reply stops it and creates a task; three silent weeks mark the lead "switch contact" and raise an alert. Emails open in the member's own mail app, and each step is recorded.
 - **Signing creates the payment plan.** When a deal reaches Signed, the app creates a 50% advance due in 7 days, a 50% balance due after the fest's branding report, and a starter checklist of deliverables. If a deal is later lost, its unpaid instalments are written off, so cash is never overstated.
 - **Each bet is judged by its own line.** Strategy status (scale, change, stop or testing) is computed from the thresholds in section 10, never set by hand.
 - **Cash before the fest is projected live** with the formula in section 8.7, shown at both plan rates and the observed signing rate.
-- **Alerts are the Monday checks.** Silent leads, overdue tasks and payments due within 7 days appear on the Overview and in the notification bell, grouped by type.
-- **Time is handled with care.** The GEF clock is fixed at 27 November 2026 so the numbers match the deck, and past dates are read as of the end of that day, so later events never leak in. Once a fest is over, open deals no longer count toward cash before it.
-- **Reset in one click.** Heads can reload both datasets with **Reset demo data**, so reviewers can test freely.
+- **Alerts are the Monday checks,** including payments due within 7 days.
+- **Time is handled with care.** Past dates are read as of the end of that day, so later events never leak in, and once a fest is over, open deals stop counting toward cash before it.
+- **Reset and tour.** Heads can reload both datasets with **Reset demo data**, and an optional guided tour walks first-time visitors through the app.
 
 ### 11.3 Screenshots
 
@@ -666,11 +666,11 @@ Growth Center is the tool the team would run the season on. Each part of the pla
 
 ## 12. The AI copilot
 
-The copilot is a growth analyst inside the app. It answers questions from the live data, shows the numbers behind every answer, suggests the plan's agreed next move, and acts only after the user confirms.
+The copilot is a growth analyst inside the app: it answers from live data, shows the numbers behind each answer, suggests the plan's agreed next move and acts only after you confirm.
 
 ### 12.1 How it answers
 
-It never reads the database freely. It works through ten tools, each built for one kind of question:
+It never reads the database freely; it works through ten tools:
 
 | Tool | What it does |
 | --- | --- |
@@ -681,7 +681,7 @@ It never reads the database freely. It works through ten tools, each built for o
 | `run_sql` | One read-only query, for questions the other tools do not cover |
 | `propose_task`, `propose_task_update`, `propose_deal_stage`, `propose_payment_update`, `propose_sequence` | Proposed actions that change nothing until the user clicks **Confirm** |
 
-Each answer drawn from data shows a **Checked N data sources** line that opens the exact tool calls behind it, so any number can be traced.
+Each data answer shows a **Checked N data sources** line that opens the exact tool calls behind it.
 
 ### 12.2 The rules it follows
 
@@ -701,12 +701,12 @@ The copilot works under 18 written rules. The ones that matter most:
 
 - **Read-only by design.** Each query runs in a read-only transaction on views limited to the user's workspace, with a 4-second limit and at most 200 rows returned. Writes, system functions and session settings are blocked before the query runs.
 - **One clock.** In queries, "today" is the dataset's own date, so relative dates match the rest of the app.
-- **Reliable on a free tier.** It runs on Google Gemini's free tier and falls back across five Gemini Flash and Flash-Lite models. A model that is busy is rested for a while and one that is unavailable is skipped, so a single quota limit rarely stops an answer.
-- **Bounded time.** An answer takes at most 6 rounds of tool calls within 50 seconds, and a model attempt that stalls is cut off after 20 seconds, so every question gets a reply inside the hosting time limit.
+- **Reliable on a free tier.** It falls back across five Gemini Flash and Flash-Lite models, resting busy ones and skipping unavailable ones, so one quota limit rarely stops an answer.
+- **Bounded time.** At most 6 rounds of tool calls within 50 seconds, with a stalled model cut off after 20 seconds, so every question gets a reply inside the hosting limit.
 
 ### 12.4 One workflow, from insight to action
 
-This is the path from a question to a change in the data, as it ran in testing on the GEF workspace:
+From a question to a change in the data, as it ran in testing on GEF:
 
 1. **Insight.** Asked "Which bets are behind this week?", the copilot named the three amber bets with their numbers: Conglomerates (1 meeting per 30 business units against a line of 3+), Government + CSR (1 conversation where 2 were needed by week 4) and mass email (0.40% replies against a line of 0.5%).
 2. **Action.** Asked to create a task for the Conglomerates owner, it showed a proposal card for Ishita Rao. Nothing changed until **Confirm** was clicked; the task then appeared on the Tasks page.
@@ -739,15 +739,15 @@ Both workspaces load in a single transaction from these files, which is what **R
 
 ### 14.1 What was checked, and how
 
-- **Every plan number** in the deck and in sections 8 and 9 was re-computed in Python, and each live figure quoted in this document was read from the running app.
-- **Every CampusFest figure** in section 6.5 was checked against the raw workbook, and both build scripts were re-run to confirm they reproduce the data files exactly.
-- **Roles and permissions** were tested through the server routes: a member cannot edit another member's deal, create a task for someone else or see team cash.
+- **Every plan number** in the deck and sections 8 and 9 was re-computed in Python, and each live figure here was read from the running app.
+- **Every CampusFest figure** in 6.5 was checked against the raw workbook, and both build scripts reproduce the data files exactly.
+- **Roles** were tested through the server routes: a member cannot edit another's deal, assign tasks to others or see team cash.
 - **The copilot** was tested on the live app in three rounds:
   1. **A written test sheet of 37 questions** (17 on CampusFest; 20 on GEF, covering a head, a member and changed data), each with its expected answer computed from the data before asking, run in sets of five.
   2. **A final check** on the last build, with fresh questions aimed at the weak spots the first round exposed.
   3. **A few questions of my own** that neither round covered.
 
-  A pass needed the right number and the right reasoning: assumptions labelled, small samples flagged and nothing invented. Every failure was fixed and re-run, and every question passed on the final build.
+  A pass needed the right number and reasoning: assumptions labelled, small samples flagged, nothing invented. Every failure was fixed and re-run; every question passed on the final build.
 
 ### 14.2 Sample tests
 
@@ -769,8 +769,6 @@ All of these passed on the final build.
 | B20 | *(After marking that advance paid)* How much have we collected so far? | ₹2.50L | Answers follow changed data |
 
 ### 14.3 What testing found and fixed
-
-Testing was worth it: it caught real problems before reviewers could.
 
 | Found | Fixed |
 | --- | --- |
@@ -808,7 +806,7 @@ Testing was worth it: it caught real problems before reviewers could.
 
 The whole product runs at no cost: every hosted service is on a free plan.
 
-**How I used AI.** Built with Claude as a coding assistant; I designed the logic, set the rules and verified every number. The strategy, the GES playbook, the PACT framework, the tests and their lines, and every judgement tagged [Y] or [A] are mine. Every number was checked against its source, the data or a fresh calculation before it went into the deck or this document.
+**How I used AI.** Claude was my coding and writing assistant; I designed the logic, set the rules and verified every number. The strategy, GES playbook, PACT, the tests and their lines, and every [Y] or [A] judgement are mine.
 
 ### 15.2 What I reused, modified and verified
 
@@ -820,49 +818,47 @@ The whole product runs at no cost: every hosted service is on a free plan.
 | **Modified** | The CampusFest data: exact duplicate rows removed, and nothing else | Section 13 |
 | **Modified** | The GES funnel, turned into stage odds for live projections | Assumption A11 |
 | **Built new** | The GEF plan and its maths, the PACT framework, the GEF simulation, the app and the copilot's tools and rules | Sections 7 to 12 |
-| **Verified** | Plan numbers re-computed in Python; CampusFest figures checked against the raw workbook; both build scripts re-run to confirm they reproduce the data files exactly; public sources re-read; live figures read from the running app; the copilot tested in three rounds | Section 14 |
+| **Verified** | Plan numbers, CampusFest figures, build scripts, public sources, live figures and the copilot | Section 14 |
 
 ## 16. Security and privacy
 
-- **No secrets in the code.** The database address, the Gemini key and the session secret live only in environment variables on Vercel. All `.env` files are kept out of Git; only `.env.example`, which lists the names without values, is committed.
-- **Sign-in.** A 6-digit one-time code, valid for 5 minutes, with 5 tries. The code is never stored: only a keyed hash of it, inside a signed, short-lived cookie. Because this is a demo, the code is shown on screen; setting `DEMO_OTP=off` hides it.
-- **Sessions.** The session cookie is signed (HMAC-SHA256), HTTP-only, SameSite Lax and secure in production, so a member cannot edit it to become a head. Sign-in codes and sessions are signed under separate labels, so one can never pass as the other.
-- **Permissions on the server.** Every write checks the user's role: members change only their own deals, payments and tasks, and the team dashboard returns an error for members. In the copilot's views, a member sees deal values only for their own deals.
-- **A safe copilot.** Read-only queries on views limited to the user's workspace, with session settings and system functions blocked, a time limit and a row cap. Pasted SQL and requests to change role are refused, and every action needs the user's confirmation through the same permission checks.
-- **Protected reset.** Loading the data is open only on the very first run; after that, only a head (or someone holding `SETUP_KEY`) can reset it.
-- **Fictional data only.** Every company and person in both workspaces is fictional. In the plan itself, attendee data is shared with sponsors only with attendees' explicit, purpose-specific consent.
+- **No secrets in the code.** The database address, Gemini key and session secret live only in Vercel environment variables; only `.env.example`, with names and no values, is committed.
+- **Sign-in.** A 6-digit one-time code, valid for 5 minutes, with 5 tries, stored only as a keyed hash in a signed, short-lived cookie. The demo shows it on screen; `DEMO_OTP=off` hides it.
+- **Sessions.** The session cookie is signed (HMAC-SHA256), HTTP-only, SameSite Lax and secure in production, so a member cannot edit it to become a head; codes and sessions are signed under separate labels.
+- **Permissions on the server.** Every write checks the role: members change only their own deals, payments and tasks, cannot load the team dashboard, and see deal values only for their own deals in the copilot.
+- **A safe copilot.** Read-only, scoped and confirmation-gated, as set out in [12.3](#123-built-to-be-safe-and-dependable).
+- **Protected reset.** Loading data is open only on the first run; after that, only a head (or `SETUP_KEY`) can reset it.
+- **Fictional data only.** Every company and person is fictional; in the plan, attendee data is shared only with explicit, purpose-specific consent.
 
 ## 17. Key decisions and trade-offs
 
 | Decision | Why | What I gave up |
 | --- | --- | --- |
-| Cash before the fest as the measure of success, not signed value | It is what Challenge B asks for, and it changes the plan: it favours fast payers and early deals | Large late payers count for less, even when their deals are big |
-| Mumbai over Bengaluru | The largest CSR pool and the home of banks and large groups, the payers that matter for cash | Bengaluru's larger startup funding pool |
-| Multiplying PACT factors instead of a weighted score | One weak factor really does sink a deal, and there are no weights to argue over | Fine distinctions between close bets, so scores are read as tiers |
-| A 25% cut on everything above the base | A plan that assumes every bet works is not a plan | Some upside in the headline number |
-| A simulated GEF workspace beside the original data | Reviewers can watch the plan run, with real rules on realistic data | The GEF numbers are illustrations, not evidence |
-| A fixed demo clock | The app, the deck and this document show the same numbers | A live clock, until the season starts |
-| A copilot that proposes and never acts alone | Trust: no change happens without a person's click | One extra click per action |
-| Copilot tools in place of open database access | Answers are traceable, scoped to the user's role and hard to misuse | Some flexibility for unusual questions, kept through one read-only query tool |
-| Emails sent from each member's own mail app | No sending service to secure, no spam risk to the fest's domain, and replies land where members already work | Fully automatic sending |
-| The free Gemini tier, with five fallback models | No cost, which suits a student team | An occasional "busy" message under heavy use |
-| Cold calls, meetings and scouting kept human | That is where judgement and relationships decide a deal | Some automation that a tool could offer |
+| Cash before the fest as the measure, not signed value | It is what Challenge B asks, and it favours fast payers and early deals | Large late payers count for less |
+| Mumbai over Bengaluru | The largest CSR pool and home of banks and large groups | Bengaluru's larger startup funding |
+| Multiplying PACT factors, not weighting them | One weak factor sinks a deal; no weights to argue over | Fine distinctions, so scores are read as tiers |
+| A 25% cut above the base | A plan that assumes every bet works is not a plan | Some headline upside |
+| A simulated GEF workspace beside the original data | Reviewers can watch the plan run on realistic data | GEF numbers are illustrations, not evidence |
+| A fixed demo clock | The app, deck and README show the same numbers | A live clock, until the season starts |
+| A copilot that proposes, never acts alone | No change without a person's click | One extra click per action |
+| Copilot tools, not open database access | Traceable, role-scoped, hard to misuse | Some flexibility, kept through one read-only query tool |
+| Emails sent from each member's own mail app | No sending service to secure, no spam risk to the fest's domain, replies land where members work | Fully automatic sending |
+| Free Gemini tier, five fallback models | No cost for a student team | An occasional "busy" message |
+| Cold calls, meetings and scouting kept human | Judgement and relationships decide deals there | Some possible automation |
 
 ## 18. Known limitations and next steps
 
 **Limitations.**
 
-- **The GEF numbers are simulated.** They show how the plan runs; real results will come from the first weeks of the season, which is exactly what the early tests are for.
-- **Many inputs are judgement calls.** The stretch close rate, the average deal size, the PACT scores and the test lines are assumptions (section 7), stated with their basis and checked live.
-- **Sign-in codes are shown on screen.** There is no email delivery yet, so turning the demo display off would also block sign-in.
-- **Emails are not sent from the app.** Members send them from their own mail app, and the app records each step.
-- **The copilot runs on a free tier.** If it says it is busy, waiting about a minute is enough.
-- **Copilot answers can vary between runs.** An answer may be more or less complete each time: a projection question, for example, may give the plan-rate figure without the observed-rate one until asked. The numbers come from the same tools either way.
-- **One shared demo.** Changes made by one reviewer are visible to the next until a head clicks **Reset demo data**.
-- **The free database can pause when unused for a while,** so the first load after a long gap may be slow.
-- **No automated test suite.** Testing was done through scripted questions, server checks and manual walkthroughs (section 14).
-- **Designed for desktop.** The interface was built and checked mainly on desktop screens.
-- **A known advisory in a build dependency.** `npm audit` reports two issues (one moderate, one high) in the copy of PostCSS bundled inside Next.js 15, which processes the app's styles at build time. The fix needs a major upgrade to Next.js 16, which I have left until after the review.
+- **The GEF numbers are simulated.** They show how the plan runs; real results come from the first weeks of the season, which is what the early tests are for.
+- **Many inputs are judgement calls.** The close rates, deal size, PACT scores and test lines are assumptions (section 7), stated with their basis and checked live. The base close rate is the most important (see [6.5](#65-what-the-provided-campusfest-data-shows-d)).
+- **Sign-in codes are shown on screen,** as there is no email delivery yet; hiding them would also block sign-in.
+- **Emails are not sent from the app.** Members send them from their own mail app, and each step is recorded.
+- **The copilot runs on a free tier** and can be busy for about a minute. Its answers can also vary in completeness between runs (a projection question may skip the observed-rate figure until asked), though the numbers come from the same tools.
+- **One shared demo.** One reviewer's changes stay visible to the next until a head clicks **Reset demo data**, and the free database may load slowly after a long idle gap.
+- **No automated test suite.** Testing used scripted questions, server checks and walkthroughs (section 14).
+- **Designed for desktop** first; phones work but were checked less.
+- **A known build advisory.** `npm audit` reports two issues (one moderate, one high) in the PostCSS copy inside Next.js 15, used only at build time. The fix needs Next.js 16, left until after the review.
 
 **Next steps.**
 
