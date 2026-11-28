@@ -108,7 +108,6 @@ Arman Barik · 22ME3EP10 · RISA Labs, Growth APM assignment · Challenge B: Spo
 | **Where will we place our bets?** (Slide 2) | Five ranked strategies, what each adds, its budget, owner and early test | [Prioritisation framework: PACT](#9-prioritisation-framework-pact) | Strategies: scores, budgets, tests |
 | **How will we know what is working?** (Slide 3) | Early signals, the lines to scale, change or stop, and the weekly review | [Experiments and thresholds](#10-experiments-and-thresholds) | Strategies status, alerts, AI copilot |
 
-
 ## 6. Research
 
 Three kinds of evidence: my GES experience [Y] shows how sponsorship works, published facts [S] show where the money is, and the CampusFest data [D] shows which outreach converts.
@@ -369,7 +368,6 @@ The brief includes one season from a fictional fest, CampusFest 2025 (held 12 an
 **Why the base engine still starts cold.** CampusFest's cold outreach was email and LinkedIn only: no phone calls, and even its 24 cold meetings signed nothing. The GES engine works differently: a call finds the right person before any proposal is sent, and follow-ups mix email with calls [Y]. So the 1% close rate (A1) comes from GES, not from this data, and it is the plan's most important assumption. The app tests it from week 1 by projecting cash at both the plan rate and the observed rate, so a shortfall shows within weeks, not at the fest.
 
 **What this changed in my plan.** Active sponsors, the bet built on existing relationships, scores highest on acceptance in PACT, and speakers and referrals are used to open doors. Mass email still runs because it is cheap and reaches unknown companies, but only alongside the bets and with its own test line. The leakage case is why the app tracks payments and deliverables after signing.
-
 
 ## 7. Assumptions
 
@@ -702,7 +700,7 @@ The copilot works under 18 written rules. The ones that matter most:
 - **Read-only by design.** Each query runs in a read-only transaction on views limited to the user's workspace, with a 4-second limit and at most 200 rows returned. Writes, system functions and session settings are blocked before the query runs.
 - **One clock.** In queries, "today" is the dataset's own date, so relative dates match the rest of the app.
 - **Reliable on a free tier.** It falls back across five Gemini Flash and Flash-Lite models, resting busy ones and skipping unavailable ones, so one quota limit rarely stops an answer.
-- **Bounded time.** At most 6 rounds of tool calls within 50 seconds, with a stalled model cut off after 20 seconds, so every question gets a reply inside the hosting limit.
+- **Bounded time.** At most 6 rounds of tool calls within 50 seconds. A stalled model is cut off after 15 seconds and the faster Flash-Lite models are tried next, so every question gets a reply inside the hosting limit.
 
 ### 12.4 One workflow, from insight to action
 
@@ -787,7 +785,6 @@ All of these passed on the final build.
 | A sign-in code could be swapped in as a session cookie | The two are signed under separate labels |
 | Gemini quota and timeout errors | Fallback across five models, with rest periods and time caps |
 | CampusFest's email templates still named GEF Mumbai | Templates use each workspace's own fest name, and both build scripts reproduce the data files exactly |
-
 
 ## 15. Tools used and what I reused, modified and verified
 

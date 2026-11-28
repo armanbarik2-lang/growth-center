@@ -440,8 +440,8 @@ export async function chat(ctx: Ctx, history: Content[], page?: string) {
     let res;
     const order = usableModels(model);
     for (let m = 0; m < order.length; m++) {
-      // one stuck model may not eat the whole budget: cap each try at 20 s while other models remain
-      const ms = Math.max(5_000, m < order.length - 1 ? Math.min(20_000, left() - 2_000) : left() - 2_000);
+      // one stuck model may not eat the whole budget: cap each try at 15 s while other models remain
+      const ms = Math.max(5_000, m < order.length - 1 ? Math.min(15_000, left() - 2_000) : left() - 2_000);
       try {
         res = await ai.models.generateContent({
           model: order[m], contents,
@@ -468,6 +468,11 @@ export async function chat(ctx: Ctx, history: Content[], page?: string) {
           m--; continue;
         }
         noteFailure(order[m], msg);
+        // A slow full model usually means load on the larger models: try the faster Flash-Lite models next.
+        if (isTimeout(msg) && m < order.length - 1) {
+          const rest = order.slice(m + 1);
+          order.splice(m + 1, rest.length, ...rest.filter((x) => /lite/.test(x)), ...rest.filter((x) => !/lite/.test(x)));
+        }
         // Model missing, or busy / over quota with time left: try the next model (each has its own quota).
         if (m < order.length - 1 && (isModelMissing(msg) || ((isBusy(msg) || isTimeout(msg)) && left() > 8_000))) continue;
         if (isSlowOrBusy(msg)) {
