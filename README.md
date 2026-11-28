@@ -135,12 +135,12 @@ GES is the flagship event of the Entrepreneurship Cell, IIT Kharagpur. I have le
 | Title | ₹7L to ₹8L |
 | Co-title | ₹4L to ₹6L |
 | Powered by | ₹3L to ₹5L |
-| Executive | ₹3L+ |
+| Executive | ₹2.5L to ₹3L |
 | Strategic | ₹1.75L to ₹2.5L |
 | Corporate | ~₹1.5L |
 | Associate | ~₹1L |
 | Stall | ₹10K to ₹20K |
-| Add-ons | Exclusive category rights +₹50K; custom branding +₹25K to ₹50K |
+| Add-ons | Exclusive category rights +₹50K; custom branding ~₹50K per avenue |
 
 Higher slabs include more of the deliverables listed in [6.2](#62-what-sponsors-ask-for-and-what-we-deliver-y).
 
@@ -173,7 +173,7 @@ Two lessons apply everywhere: large companies take weeks to approve, so they are
 
 ### 6.2 What sponsors ask for, and what we deliver [Y]
 
-Every GES deal is built from the same set of deliverables. From the Corporate slab up, branding, media publicity and video ads come with every deal, and the slab sets how much: five video ads at a high slab, one or two at a lower one. Custom branding is priced on top, at ₹25K to ₹50K each.
+Every GES deal is built from the same set of deliverables. From the Corporate slab up, branding, media publicity and video ads come with every deal, and the slab sets how much: five video ads at a high slab, one or two at a lower one. Custom branding is priced on top, at about ₹50K each.
 
 <details>
 <summary><b>What each sector asks for</b> (26 sectors in 6 families)</summary>
@@ -240,7 +240,7 @@ Every GES deal is built from the same set of deliverables. From the Corporate sl
 
 *Experiential*
 
-- **Custom branding avenues:** pieces made for the sponsor, such as the 3×3 metal logo cubes at the GES 2023 informal night, bands or theme-coloured balloons, at ₹25K to ₹50K each.
+- **Custom branding avenues:** pieces made for the sponsor, such as the 3×3 metal logo cubes at the GES 2023 informal night, bands or theme-coloured balloons, at about ₹50K each.
 - **Merchandise:** the sponsor's material handed to attendees, a favourite of banks, edtech and digital product firms.
 - **Kiosks:** dedicated kiosks and spaces at the venue.
 
@@ -537,7 +537,7 @@ Five bets compete for the same 13 people and ₹60K. To rank them I needed a met
 **3. Conglomerates (scale, PACT 96)**
 
 - **What:** 5 to 6 large business groups, pitching 80 to 150 of their business units one by one.
-- **Why they pay:** a package for each business unit, plus custom branding (+₹25K to ₹50K).
+- **Why they pay:** a package for each business unit, plus custom branding (+~₹50K).
 - **Adds:** 1 deal, ₹1.5L to ₹2.5L, mostly paid after the fest.
 - **Run by:** Head 1 with members from every sector group, in weeks 1 to 10, for ₹18K.
 - **Test and KPI:** 3 or more meetings from the first 30 business units; meetings per 30 units.
